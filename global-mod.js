@@ -2,35 +2,71 @@ class GlobalMod {
 
     static version = '0.0.2';
 
+    static styleClass = 'global-mod';
+
     hass;
+
+    config;
+
+    styles;
+    
+    self;
 
     constructor(hass) {
         this.hass = hass;
-        console.info(`%c Header Styler %c ${GlobalMod.version}`, "color:white;background:green;", "");
+        this.config = this.hass.themes.themes['global-mod'];
+        this.styles = [];
+        self = this;
+        
+        window.addEventListener('location-changed', this.applyStyles);
+        this.applyStyles();
     }
 
-    get componentModConfig() {
-        return hass.themes.themes['component-mod'];
-    }
-
-    addStyle(tree, cssStyle) {
-        let style = tree.querySelector('style.card-modder');
+    addStyleElement(tree, cssStyle) {
+        let style = tree.querySelector(`style.${GlobalMod.styleClass}`);
 
         if (!style) {
-            style = this.createStyleElement();
+            let style = document.createElement('style');
+            
+            style.classList.add(GlobalMod.styleClass);
+            style.classList.add('active');
+            style.setAttribute('type', 'text/css');
             style.innerText = cssStyle;
+            
             tree.appendChild(style);
+            return style;
         }
-        else {
-            style.innerText = cssStyle;
-            tree.replaceWith(style);
+
+        if (style != null || style != undefined) {
+            style.classList.add('active');
         }
     }
 
-    createStyleElement() {
-        let style = document.createElement('style');
-        style.classList.add('card-modder');
-        return style;
+    applyStyles() {
+        for (const style of self.styles) {
+            if (style) {
+                style.classList.remove('active');
+            }
+        }
+
+        for (const path in self.config) {
+            const current = window.location.pathname.toLowerCase();
+
+            if (current.includes(path.toLowerCase())) {
+                for (const rule of self.config[path]) {
+                    const tree = self.selectTree(rule.selector);
+                    const style = self.addStyleElement(tree, rule.style);
+                    self.styles.push(style);
+                    console.log(rule, style);
+                }
+            }
+        }
+
+        for (const style of self.styles) {
+            if (style && !style.classList.contains('active')) {
+                style.remove();
+            }
+        }
     }
 
     selectTree(selector) {
@@ -50,9 +86,7 @@ class GlobalMod {
         
         return tree;
     }
-
 }
 
-let modder = new GlobalMod(document.querySelector('home-assistant').hass);
-let tree = modder.selectTree('home-assistant$home-assistant-main$ha-drawer');
-// modder.addStyle(tree, 'ha-sidebar { background-color: red; }');
+new GlobalMod(document.querySelector('home-assistant').hass);
+console.info(`%c Header Styler %c ${GlobalMod.version}`, "color:white;background:green;", "");
