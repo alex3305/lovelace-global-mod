@@ -1,0 +1,5 @@
+component-mod:
+  all:
+    selector: 'home-assistant$home-assistant-main$ha-drawer'
+    style: |
+      ha-sidebar { background-color: red; }
