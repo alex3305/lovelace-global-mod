@@ -1,8 +1,10 @@
 class GlobalMod {
 
-    static version = '0.0.2';
+    static version = '0.0.3';
 
     static styleClass = 'global-mod';
+
+    static instance;
 
     hass;
 
@@ -10,19 +12,18 @@ class GlobalMod {
 
     styles;
     
-    self;
-
     constructor(hass) {
-        this.hass = hass;
-        this.config = this.hass.themes.themes['global-mod'];
-        this.styles = [];
-        self = this;
+        GlobalMod.instance = this;
+
+        GlobalMod.instance.hass = hass;
+        GlobalMod.instance.config = GlobalMod.instance.hass.themes.themes['global-mod'];
+        GlobalMod.instance.styles = [];
         
-        window.addEventListener('location-changed', this.applyStyles);
-        this.applyStyles();
+        window.addEventListener('location-changed', () => GlobalMod.instance.applyStyles(), false);
+        GlobalMod.instance.applyStyles();
     }
 
-    addStyleElement(tree, cssStyle) {
+    async addStyleElement(tree, cssStyle) {
         let style = tree.querySelector(`style.${GlobalMod.styleClass}`);
 
         if (!style) {
@@ -31,7 +32,7 @@ class GlobalMod {
             style.classList.add(GlobalMod.styleClass);
             style.classList.add('active');
             style.setAttribute('type', 'text/css');
-            style.innerText = cssStyle;
+            style.textContent = cssStyle;
             
             tree.appendChild(style);
             return style;
@@ -42,34 +43,34 @@ class GlobalMod {
         }
     }
 
-    applyStyles() {
-        for (const style of self.styles) {
+    async applyStyles(styles, config) {
+        for (const style of GlobalMod.instance.styles) {
             if (style) {
                 style.classList.remove('active');
             }
         }
 
-        for (const path in self.config) {
+        for (const path in GlobalMod.instance.config) {
             const current = window.location.pathname.toLowerCase();
 
             if (current.includes(path.toLowerCase())) {
-                for (const rule of self.config[path]) {
-                    const tree = self.selectTree(rule.selector);
-                    const style = self.addStyleElement(tree, rule.style);
-                    self.styles.push(style);
+                for (const rule of GlobalMod.instance.config[path]) {
+                    const tree = await GlobalMod.instance.selectTree(rule.selector);
+                    const style = await GlobalMod.instance.addStyleElement(tree, rule.style);
+                    GlobalMod.instance.styles.push(style);
                     console.log(rule, style);
                 }
             }
         }
 
-        for (const style of self.styles) {
+        for (const style of GlobalMod.instance.styles) {
             if (style && !style.classList.contains('active')) {
                 style.remove();
             }
         }
     }
 
-    selectTree(selector) {
+    async selectTree(selector) {
         let components = selector.split('$');
         let tree;
 
@@ -89,4 +90,4 @@ class GlobalMod {
 }
 
 new GlobalMod(document.querySelector('home-assistant').hass);
-console.info(`%c Header Styler %c ${GlobalMod.version}`, "color:white;background:green;", "");
+console.info(`%c Global Mod %c ${GlobalMod.version}`, "color:white;background:purple;", "");
