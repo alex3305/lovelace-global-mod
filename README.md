@@ -26,19 +26,18 @@ Note that a selector of `home-assistant$` will be prefixed to all given selector
 
 ```yaml
 default:
-  mods:
-    '/':
-      - selector: 'home-assistant-main$ha-drawer'
-        style: |
-          ha-sidebar { 
-            background-color: yellow; 
-          }
-    'livingroom':
-      - selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
-        style: |
-          .header { 
-            --app-header-background-color: red; 
-          }
+  global-mod-yellowDrawer-path: '/'
+  global-mod-yellowDrawer-selector: 'home-assistant-main$ha-drawer'
+  global-mod-yellowDrawer-style: |
+    ha-sidebar { 
+      background-color: yellow; 
+    }
+  global-mod-livingroom-path: 'livingroom'
+  global-mod-livingroom-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
+  global-mod-livingroom-style: |
+    .header { 
+      --app-header-background-color: red; 
+    }
 ```
 
 This example will mod the default theme and

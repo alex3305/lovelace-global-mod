@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.1.0
+## 0.1.1
+- Move to another mod format, otherwise it was incompatible with Home Assistant 🤷‍♀️
+
+## 0.1.0 _(unreleased)_
 - Add global, dark and light styles
 - Remove `home-assistant$home-assistant-main$` selector requirement
 - Move to `mods` in current theme

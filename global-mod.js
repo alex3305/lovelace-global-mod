@@ -3,7 +3,7 @@
 export class GlobalMod {
 
     static instance;
-
+    
     hass;
 
     config;
@@ -24,6 +24,8 @@ export class GlobalMod {
     }
 
     static get ActiveClass() { return 'active'; }
+
+    static get DarkMode() { return GlobalMod.instance.hass.themes.darkMode }
     
     static get StyleClass() { return 'global-mod'; }
 
@@ -47,9 +49,9 @@ export class GlobalMod {
                 style.textContent += rule.style;
             }
 
-            if (rule.darkStyle || rule.lightStyle) {
-                style.textContent += GlobalMod.instance.config.darkMode ? 
-                        rule.darkStyle : rule.lightStyle;
+            if (rule['style-dark'] || rule['style-light']) {
+                style.textContent += GlobalMod.instance.DarkMode ? 
+                        rule['style-dark'] : rule['style-light'];
             }
             
             tree.appendChild(style);
@@ -59,30 +61,28 @@ export class GlobalMod {
         style.classList.add(GlobalMod.ActiveClass);
     }
 
-    async applyStyles(styles, config) {
+    async applyStyles() {
         for (const style of GlobalMod.instance.styles) {
             if (style) {
                 style?.classList.remove(GlobalMod.ActiveClass);
             }
         }
 
-        for (const path in GlobalMod.instance.config) {
+        for (const [_, rule] of GlobalMod.instance.config) {
+            if (!rule || !rule.path || !rule.selector) {
+                console.error(`Rule ${rule} has syntax errors...`);
+            }
+
             const current = window.location.pathname.toLowerCase();
 
-            if (current.includes(path.toLowerCase())) {
-                for (const rule of GlobalMod.instance.config[path]) {
-                    if (!rule.selector) {
-                        throw new Error(`No rule specified for ${path}`);
-                    }
-                    
-                    const selector = `home-assistant$${rule.selector}`;
-                    try {
-                        const tree = await GlobalMod.instance.selectTree(selector, 1, 6);
-                        const style = await GlobalMod.instance.addStyleElement(tree, rule);
-                        GlobalMod.instance.styles.push(style);
-                    } catch(e) {
-                        console.error(`Could not add style element to ${selector}.`);
-                    }
+            if (current.includes(rule.path.toLowerCase())) {
+                try {
+                    const tree = await GlobalMod.instance.selectTree(`home-assistant$${rule.selector}`, 1, 6);
+                    const style = await GlobalMod.instance.addStyleElement(tree, rule);
+
+                    GlobalMod.instance.styles.push(style);
+                } catch(e) {
+                    console.error(`Could not add style element to ${rule.selector}.`);
                 }
             }
         }
@@ -96,13 +96,32 @@ export class GlobalMod {
 
     loadConfig() {
         const currentTheme = GlobalMod.instance.hass.themes.theme;
-        GlobalMod.instance.config = GlobalMod.instance.hass.themes.themes[currentTheme]?.mods;
+        GlobalMod.instance.config = new Map();
+        GlobalMod.instance.config = new Map();
 
-        if (!GlobalMod.instance.config) {
+        for (var k in GlobalMod.instance.hass.themes.themes[currentTheme]) {
+            if (!k.startsWith(GlobalMod.StyleClass)) {
+                continue;
+            }
+
+            const r = k.substring(GlobalMod.StyleClass.length + 1);
+            const ruleKey = r.substring(0, r.indexOf('-'));
+            const ruleName = r.substring(r.indexOf('-') + 1);
+
+            let rule = {};
+            if (GlobalMod.instance.config.has(ruleKey)) {
+                rule = GlobalMod.instance.config.get(ruleKey);
+            }
+
+            rule[ruleName] = GlobalMod.instance.hass.themes.themes[currentTheme][k];
+            GlobalMod.instance.config.set(ruleKey, rule);
+        }
+
+        if (!GlobalMod.instance.config || GlobalMod.instance.config.size == 0) {
             console.info(`%c Global mod %c loaded without any config... \n  👉 Add a \'mods\' section to your theme %c ${currentTheme} %c to enable modding.`,
                     'color:white;background:purple;', '', 'color:black;background:lightblue;', '');
         } else {
-            console.info(`%c Global Mod %c ${GlobalMod.Version} `, 'color:white;background:purple;', 'color:white;background:darkred;');
+            console.info(`%c Global Mod %c ${GlobalMod.Version} `, 'color:white;background:purple;', 'color:white;background:darkgreen;');
         }
     }
 
