@@ -14,11 +14,12 @@ export class GlobalMod {
         GlobalMod.instance = this;
 
         GlobalMod.instance.hass = hass;
-        GlobalMod.instance.config = GlobalMod.instance.hass.themes.themes[GlobalMod.StyleClass];
         GlobalMod.instance.styles = [];
-        
-        window.addEventListener('location-changed', () => GlobalMod.instance.applyStyles(), false);
+
+        GlobalMod.instance.loadConfig();
         GlobalMod.instance.applyStyles();
+
+        window.addEventListener('location-changed', () => GlobalMod.instance.applyStyles(), false);
     }
 
     static get ActiveClass() { return 'active'; }
@@ -27,7 +28,7 @@ export class GlobalMod {
 
     static get Version() { return '0.0.4'; }
 
-    async addStyleElement(tree, cssStyle) {
+    async addStyleElement(tree, rule) {
         let style;
 
         try {
@@ -40,7 +41,9 @@ export class GlobalMod {
             style.classList?.add(GlobalMod.StyleClass);
             style.classList?.add(GlobalMod.ActiveClass);
             style.setAttribute('type', 'text/css');
-            style.textContent = cssStyle;
+            style.textContent = rule.style;
+            style.textContent += GlobalMod.instance.config.darkMode ? 
+                        rule.darkStyle : rule.lightStyle;
             
             tree.appendChild(style);
             return style;
@@ -65,9 +68,9 @@ export class GlobalMod {
                         throw new Error(`No rule specified for ${path}`);
                     }
                     
-                    // const selector = `home-assistant$home-assistant-main$${rule.selector}`;
-                    const tree = await GlobalMod.instance.selectTree(rule.selector, 1, 5);
-                    const style = await GlobalMod.instance.addStyleElement(tree, rule.style);
+                    const selector = `home-assistant$home-assistant-main$${rule.selector}`;
+                    const tree = await GlobalMod.instance.selectTree(selector, 1, 5);
+                    const style = await GlobalMod.instance.addStyleElement(tree, rule);
                     GlobalMod.instance.styles.push(style);
                 }
             }
@@ -77,6 +80,15 @@ export class GlobalMod {
             if (style && !style.classList.contains(GlobalMod.ActiveClass)) {
                 style.remove();
             }
+        }
+    }
+
+    loadConfig() {
+        const currentTheme = GlobalMod.instance.hass.themes.theme;
+        GlobalMod.instance.config = GlobalMod.instance.hass.themes.themes[currentTheme]?.mods;
+
+        if (!GlobalMod.instance.config) {
+            console.info("Global mod loaded without any config.");
         }
     }
 

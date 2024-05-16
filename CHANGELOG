@@ -1,7 +1,9 @@
 # Changelog
 
 ## 0.0.4
+- Add global, dark and light styles
 - Remove `home-assistant$home-assistant-main$` selector requirement
+- Move to `mods` in current theme
 - Add exponential backoff to find page elements
 
 ## 0.0.3 _(unreleased)_
