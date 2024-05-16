@@ -1,4 +1,4 @@
-global-mod:
+global_mod:
   '/':
     - selector: 'home-assistant$home-assistant-main$ha-drawer'
       style: |

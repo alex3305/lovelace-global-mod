@@ -4,6 +4,8 @@ class GlobalMod {
 
     static styleClass = 'global-mod';
 
+    static activeClass = 'active';
+
     static instance;
 
     hass;
@@ -16,7 +18,7 @@ class GlobalMod {
         GlobalMod.instance = this;
 
         GlobalMod.instance.hass = hass;
-        GlobalMod.instance.config = GlobalMod.instance.hass.themes.themes['global-mod'];
+        GlobalMod.instance.config = GlobalMod.instance.hass.themes.themes[GlobalMod.styleClass];
         GlobalMod.instance.styles = [];
         
         window.addEventListener('location-changed', () => GlobalMod.instance.applyStyles(), false);
@@ -24,29 +26,34 @@ class GlobalMod {
     }
 
     async addStyleElement(tree, cssStyle) {
-        let style = tree.querySelector(`style.${GlobalMod.styleClass}`);
+        let style;
+
+        try {
+            style = tree.querySelector(`style.${GlobalMod.styleClass}`);
+        } catch (error) { }
 
         if (!style) {
-            let style = document.createElement('style');
+            style = document.createElement('style');
             
             style.classList.add(GlobalMod.styleClass);
-            style.classList.add('active');
+            style.classList.add(GlobalMod.activeClass);
             style.setAttribute('type', 'text/css');
             style.textContent = cssStyle;
             
-            tree.appendChild(style);
+            try {
+                // TODO add retry
+                tree.appendChild(style);
+            } catch (error) { }
             return style;
         }
 
-        if (style != null || style != undefined) {
-            style.classList.add('active');
-        }
+        style.classList.add(GlobalMod.activeClass);
     }
 
     async applyStyles(styles, config) {
         for (const style of GlobalMod.instance.styles) {
             if (style) {
-                style.classList.remove('active');
+                style.classList.remove(GlobalMod.activeClass);
             }
         }
 
@@ -58,13 +65,12 @@ class GlobalMod {
                     const tree = await GlobalMod.instance.selectTree(rule.selector);
                     const style = await GlobalMod.instance.addStyleElement(tree, rule.style);
                     GlobalMod.instance.styles.push(style);
-                    console.log(rule, style);
                 }
             }
         }
 
         for (const style of GlobalMod.instance.styles) {
-            if (style && !style.classList.contains('active')) {
+            if (style && !style.classList.contains(GlobalMod.activeClass)) {
                 style.remove();
             }
         }

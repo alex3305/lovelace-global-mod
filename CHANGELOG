@@ -1,0 +1,15 @@
+# Changelog
+
+## 0.0.3 _(unreleased)_
+- Implemented async/await
+- Added documentation
+- Added HACS
+
+## 0.0.2 _(unreleased)_
+- First fully working version
+- Renamed to global-mod
+- Implemented ES6 class with functions
+
+## 0.0.1 _(as header-styler, unreleased)_
+- Initial proof of concept
+- Including event listener for page changes
