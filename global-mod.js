@@ -20,13 +20,14 @@ export class GlobalMod {
         GlobalMod.instance.applyStyles();
 
         window.addEventListener('location-changed', () => GlobalMod.instance.applyStyles(), false);
+        window.addEventListener('popstate', () => GlobalMod.instance.applyStyles(), false);
     }
 
     static get ActiveClass() { return 'active'; }
     
     static get StyleClass() { return 'global-mod'; }
 
-    static get Version() { return '0.0.4'; }
+    static get Version() { return '0.1.0'; }
 
     async addStyleElement(tree, rule) {
         let style;
@@ -41,9 +42,15 @@ export class GlobalMod {
             style.classList?.add(GlobalMod.StyleClass);
             style.classList?.add(GlobalMod.ActiveClass);
             style.setAttribute('type', 'text/css');
-            style.textContent = rule.style;
-            style.textContent += GlobalMod.instance.config.darkMode ? 
+
+            if (rule.style) {
+                style.textContent += rule.style;
+            }
+
+            if (rule.darkStyle || rule.lightStyle) {
+                style.textContent += GlobalMod.instance.config.darkMode ? 
                         rule.darkStyle : rule.lightStyle;
+            }
             
             tree.appendChild(style);
             return style;
@@ -55,7 +62,7 @@ export class GlobalMod {
     async applyStyles(styles, config) {
         for (const style of GlobalMod.instance.styles) {
             if (style) {
-                style.classList.remove(GlobalMod.ActiveClass);
+                style?.classList.remove(GlobalMod.ActiveClass);
             }
         }
 
@@ -68,10 +75,14 @@ export class GlobalMod {
                         throw new Error(`No rule specified for ${path}`);
                     }
                     
-                    const selector = `home-assistant$home-assistant-main$${rule.selector}`;
-                    const tree = await GlobalMod.instance.selectTree(selector, 1, 5);
-                    const style = await GlobalMod.instance.addStyleElement(tree, rule);
-                    GlobalMod.instance.styles.push(style);
+                    const selector = `home-assistant$${rule.selector}`;
+                    try {
+                        const tree = await GlobalMod.instance.selectTree(selector, 1, 6);
+                        const style = await GlobalMod.instance.addStyleElement(tree, rule);
+                        GlobalMod.instance.styles.push(style);
+                    } catch(e) {
+                        console.error(`Could not add style element to ${selector}.`);
+                    }
                 }
             }
         }
@@ -88,7 +99,10 @@ export class GlobalMod {
         GlobalMod.instance.config = GlobalMod.instance.hass.themes.themes[currentTheme]?.mods;
 
         if (!GlobalMod.instance.config) {
-            console.info("Global mod loaded without any config.");
+            console.info(`%c Global mod %c loaded without any config... \n  👉 Add a \'mods\' section to your theme %c ${currentTheme} %c to enable modding.`,
+                    'color:white;background:purple;', '', 'color:black;background:lightblue;', '');
+        } else {
+            console.info(`%c Global Mod %c ${GlobalMod.Version} `, 'color:white;background:purple;', 'color:white;background:darkred;');
         }
     }
 
@@ -107,18 +121,23 @@ export class GlobalMod {
                     }
                 }
             }
-        } catch (e) {
-            if (iterations === maxIterations) {
-                throw new Error("No Element Found");
+
+            if (!tree) {
+                throw new Error();
             }
 
-            await new Promise((resolve) => setTimeout(resolve, iterations * 100));
+            return tree;
+        } catch (e) {
+            console.warn(`Retry for ${selector}`);
+
+            if (iterations === maxIterations) {
+                throw new Error(`No Element Found for ${selector}`);
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, iterations * 25));
             return await GlobalMod.instance.selectTree(selector, iterations + 1, maxIterations);
         }
-        
-        return tree;
     }
 }
 
 new GlobalMod(document.querySelector('home-assistant').hass);
-console.info(`%c Global Mod %c ${GlobalMod.Version}`, "color:white;background:purple;", "");
