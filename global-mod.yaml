@@ -1,9 +1,10 @@
-global_mod:
-  '/':
-    - selector: 'home-assistant$home-assistant-main$ha-drawer'
-      style: |
-        ha-sidebar { background-color: yellow; }
-  rituals-perfume-genie:
-    - selector: 'home-assistant$home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root div'
-      style: |
-        header: { background-color: red; }
+default:
+  mods:
+    '/':
+      - selector: 'home-assistant$home-assistant-main$ha-drawer'
+        style: |
+          ha-sidebar { background-color: yellow; }
+    rituals-perfume-genie:
+      - selector: 'home-assistant$home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root div'
+        style: |
+          header: { background-color: red; }

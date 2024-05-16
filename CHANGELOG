@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.4
+- Remove `home-assistant$home-assistant-main$` selector requirement
+- Add exponential backoff to find page elements
+
 ## 0.0.3 _(unreleased)_
 - Implemented async/await
 - Added documentation
