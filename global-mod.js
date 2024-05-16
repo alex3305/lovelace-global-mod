@@ -27,21 +27,21 @@ export class GlobalMod {
 
     static get DarkMode() { return GlobalMod.instance.hass.themes.darkMode }
     
-    static get StyleClass() { return 'global-mod'; }
+    static get Name() { return 'global-mod'; }
 
-    static get Version() { return '0.1.0'; }
+    static get Version() { return '0.1.1'; }
 
     async addStyleElement(tree, rule) {
         let style;
 
         try {
-            style = tree.querySelector(`style.${GlobalMod.StyleClass}`);
+            style = tree.querySelector(`style.${GlobalMod.Name}`);
         } catch (e) { }
 
         if (!style) {
             style = document.createElement('style');
             
-            style.classList?.add(GlobalMod.StyleClass);
+            style.classList?.add(GlobalMod.Name);
             style.classList?.add(GlobalMod.ActiveClass);
             style.setAttribute('type', 'text/css');
 
@@ -95,18 +95,12 @@ export class GlobalMod {
     }
 
     loadConfig() {
-        const currentTheme = GlobalMod.instance.hass.themes.theme;
-        GlobalMod.instance.config = new Map();
+        const currentTheme = `${GlobalMod.instance.hass.themes.theme}-${GlobalMod.Name}`;
         GlobalMod.instance.config = new Map();
 
         for (var k in GlobalMod.instance.hass.themes.themes[currentTheme]) {
-            if (!k.startsWith(GlobalMod.StyleClass)) {
-                continue;
-            }
-
-            const r = k.substring(GlobalMod.StyleClass.length + 1);
-            const ruleKey = r.substring(0, r.indexOf('-'));
-            const ruleName = r.substring(r.indexOf('-') + 1);
+            const ruleKey = k.substring(0, k.indexOf('-'));
+            const ruleName = k.substring(k.indexOf('-') + 1);
 
             let rule = {};
             if (GlobalMod.instance.config.has(ruleKey)) {

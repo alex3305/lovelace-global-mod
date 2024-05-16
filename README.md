@@ -16,7 +16,15 @@ A custom Javascript module that can mod everything in Home Assistant using local
 
 ## Usage
 
-Modding is based on theme variables. So basically you'll need to add or modify a theme, add a `mods` key and the modding will be applied automatically based on your selection. The modding keys are used to identify the pages where the modding has to occur. 
+Modding is based on theme variables. So basically you'll need to add a special `-global-mod` theme prefixed with the name of your current theme. So for default this will be `default-global-mod`. There you can add `path`, `selector`, `style`, `style-light` and `style-dark` keys for modding. You can also easily override CSS variables with this method.
+
+| Key            | Usage |
+| -------------- | ------ |
+| `-path`        | The URL path that is used to match on. |
+| `-selector`    | The DOM selector that is used to place the CSS Style element on. |
+| `-style`       | Your CSS style (mod) that is applied regardless of light or dark mode. |
+| `-style-light` | Your CSS style (mod) that is only applied in light mode. |
+| `-style-dark`  | Your CSS style (mod) that is only applied in dark mode. |
 
 Shadow Root elements are identified by `$` to align with [card-mod](https://github.com/thomasloven/lovelace-card-mod) for more information check out their readme on [DOM navigation](https://github.com/thomasloven/lovelace-card-mod?tab=readme-ov-file#dom-navigation).
 
@@ -25,16 +33,17 @@ Note that a selector of `home-assistant$` will be prefixed to all given selector
 ### Example
 
 ```yaml
-default:
-  global-mod-yellowDrawer-path: '/'
-  global-mod-yellowDrawer-selector: 'home-assistant-main$ha-drawer'
-  global-mod-yellowDrawer-style: |
+default-global-mod:
+  yellowDrawer-path: '/'
+  yellowDrawer-selector: 'home-assistant-main$ha-drawer'
+  yellowDrawer-style: |
     ha-sidebar { 
       background-color: yellow; 
     }
-  global-mod-livingroom-path: 'livingroom'
-  global-mod-livingroom-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
-  global-mod-livingroom-style: |
+  
+  livingroom-path: 'livingroom'
+  livingroom-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
+  livingroom-style: |
     .header { 
       --app-header-background-color: red; 
     }
@@ -45,4 +54,3 @@ This example will mod the default theme and
 - On the livingroom page, the header will have a red background color
 
 ![Example](images/example.png)
-
