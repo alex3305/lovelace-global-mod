@@ -10,10 +10,10 @@ export class GlobalMod {
 
     styles;
     
-    constructor(hass) {
+    constructor() {
         GlobalMod.instance = this;
 
-        GlobalMod.instance.hass = hass;
+        GlobalMod.instance.hass = document.querySelector('home-assistant').hass;
         GlobalMod.instance.styles = [];
 
         GlobalMod.instance.loadConfig();
@@ -21,11 +21,15 @@ export class GlobalMod {
 
         window.addEventListener('location-changed', () => GlobalMod.instance.applyStyles(), false);
         window.addEventListener('popstate', () => GlobalMod.instance.applyStyles(), false);
+        window.addEventListener('settheme', () => {
+            GlobalMod.instance.hass = document.querySelector('home-assistant').hass;
+            GlobalMod.instance.applyStyles();
+        }, false);
     }
 
     static get ActiveClass() { return 'active'; }
 
-    static get DarkMode() { return GlobalMod.instance.hass.themes.darkMode }
+    static get DarkMode() { return GlobalMod.instance.hass.themes.darkMode; }
     
     static get Name() { return 'global-mod'; }
 
@@ -50,7 +54,7 @@ export class GlobalMod {
             }
 
             if (rule['style-dark'] || rule['style-light']) {
-                style.textContent += GlobalMod.instance.DarkMode ? 
+                style.textContent += GlobalMod.DarkMode ? 
                         rule['style-dark'] : rule['style-light'];
             }
             
@@ -153,4 +157,4 @@ export class GlobalMod {
     }
 }
 
-new GlobalMod(document.querySelector('home-assistant').hass);
+new GlobalMod();

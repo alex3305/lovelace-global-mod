@@ -1,6 +1,6 @@
 # Global mod for Home Assistant
 
-A custom Javascript module that can mod everything in Home Assistant using local style elements. Inspired by the Thomas Lovén's [card-mod](https://github.com/thomasloven/lovelace-card-mod).
+A custom script that can mod everything in Home Assistant using local style elements. Inspired by the Thomas Lovén's [card-mod](https://github.com/thomasloven/lovelace-card-mod).
 
 ## Installing
 
@@ -12,7 +12,8 @@ A custom Javascript module that can mod everything in Home Assistant using local
 ### Manual 
 
 1. Copy the `global-mod.js` to your `/config/www/` directory
-2. Add `/local/global-mod.js` as a custom resource
+2. Enable advanced mode to [register resources](https://developers.home-assistant.io/docs/frontend/custom-ui/registering-resources)
+3. Add `/local/global-mod.js` as a custom resource
 
 ## Usage
 
