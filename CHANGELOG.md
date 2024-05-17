@@ -3,6 +3,9 @@
 ## 0.1.1
 - Move to another mod format, otherwise it was incompatible with Home Assistant 🤷‍♀️
 - Add `settheme` listener to reload on theme change
+- [Housekeeping] Add Node to project
+- [Housekeeping] Add linting to project
+- [Housekeeping] Add editorconfig
 
 ## 0.1.0 _(unreleased)_
 - Add global, dark and light styles
