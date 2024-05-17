@@ -4,8 +4,7 @@
   "description": "A custom script that can mod everything in Home Assistant",
   "main": "global-mod.js",
   "scripts": {
-    "lint": "npx eslint global-mod.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "npx eslint global-mod.js"
   },
   "repository": {
     "type": "git",
