@@ -1,6 +1,6 @@
 'use strict';
 
-export class GlobalMod {
+class GlobalMod {
 
     static instance;
     
@@ -40,29 +40,29 @@ export class GlobalMod {
 
         try {
             style = tree.querySelector(`style.${GlobalMod.Name}`);
-        } catch (e) { }
-
-        if (!style) {
-            style = document.createElement('style');
-            
-            style.classList?.add(GlobalMod.Name);
-            style.classList?.add(GlobalMod.ActiveClass);
-            style.setAttribute('type', 'text/css');
-
-            if (rule.style) {
-                style.textContent += rule.style;
+        } finally { 
+            if (!style) {
+                style = document.createElement('style');
+                
+                style.classList?.add(GlobalMod.Name);
+                style.classList?.add(GlobalMod.ActiveClass);
+                style.setAttribute('type', 'text/css');
+    
+                if (rule.style) {
+                    style.textContent += rule.style;
+                }
+    
+                if (rule['style-dark'] || rule['style-light']) {
+                    style.textContent += GlobalMod.DarkMode ? 
+                            rule['style-dark'] : rule['style-light'];
+                }
+                
+                tree.appendChild(style);
             }
-
-            if (rule['style-dark'] || rule['style-light']) {
-                style.textContent += GlobalMod.DarkMode ? 
-                        rule['style-dark'] : rule['style-light'];
-            }
-            
-            tree.appendChild(style);
-            return style;
         }
 
         style.classList.add(GlobalMod.ActiveClass);
+        return style;
     }
 
     async applyStyles() {
@@ -72,7 +72,7 @@ export class GlobalMod {
             }
         }
 
-        for (const [_, rule] of GlobalMod.instance.config) {
+        for (const [, rule] of GlobalMod.instance.config) {
             if (!rule || !rule.path || !rule.selector) {
                 console.error(`Rule ${rule} has syntax errors...`);
             }
@@ -85,7 +85,7 @@ export class GlobalMod {
                     const style = await GlobalMod.instance.addStyleElement(tree, rule);
 
                     GlobalMod.instance.styles.push(style);
-                } catch(e) {
+                } catch {
                     console.error(`Could not add style element to ${rule.selector}.`);
                 }
             }
@@ -116,7 +116,7 @@ export class GlobalMod {
         }
 
         if (!GlobalMod.instance.config || GlobalMod.instance.config.size == 0) {
-            console.info(`%c Global mod %c loaded without any config... \n  👉 Add a \'mods\' section to your theme %c ${currentTheme} %c to enable modding.`,
+            console.info(`%c Global mod %c loaded without any config... \n  👉 Add a 'mods' section to your theme %c ${currentTheme} %c to enable modding.`,
                     'color:white;background:purple;', '', 'color:black;background:lightblue;', '');
         } else {
             console.info(`%c Global Mod %c ${GlobalMod.Version} `, 'color:white;background:purple;', 'color:white;background:darkgreen;');
@@ -144,7 +144,7 @@ export class GlobalMod {
             }
 
             return tree;
-        } catch (e) {
+        } catch {
             console.warn(`Retry for ${selector}`);
 
             if (iterations === maxIterations) {
