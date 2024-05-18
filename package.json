@@ -1,6 +1,6 @@
 {
   "name": "ha-global-mod",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A custom script that can mod everything in Home Assistant",
   "main": "global-mod.js",
   "scripts": {

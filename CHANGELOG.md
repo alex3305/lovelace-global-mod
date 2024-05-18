@@ -1,11 +1,15 @@
 # Changelog
 
+## 0.1.2
+- Bugfix: remove active class optimization
+- Increased exponential retries
+
 ## 0.1.1
 - Move to another mod format, otherwise it was incompatible with Home Assistant 🤷‍♀️
 - Add `settheme` listener to reload on theme change
-- [Housekeeping] Add Node to project
-- [Housekeeping] Add linting to project
-- [Housekeeping] Add editorconfig
+- Housekeeping: Add Node to project
+- Housekeeping: Add linting to project
+- Housekeeping: Add editorconfig
 
 ## 0.1.0 _(unreleased)_
 - Add global, dark and light styles

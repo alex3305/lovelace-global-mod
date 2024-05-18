@@ -27,13 +27,11 @@ class GlobalMod {
         }, false);
     }
 
-    static get ActiveClass() { return 'active'; }
-
     static get DarkMode() { return GlobalMod.instance.hass.themes.darkMode; }
     
     static get Name() { return 'global-mod'; }
 
-    static get Version() { return '0.1.1'; }
+    static get Version() { return '0.1.2'; }
 
     async addStyleElement(tree, rule) {
         let style;
@@ -45,7 +43,6 @@ class GlobalMod {
                 style = document.createElement('style');
                 
                 style.classList?.add(GlobalMod.Name);
-                style.classList?.add(GlobalMod.ActiveClass);
                 style.setAttribute('type', 'text/css');
     
                 if (rule.style) {
@@ -61,15 +58,12 @@ class GlobalMod {
             }
         }
 
-        style.classList.add(GlobalMod.ActiveClass);
         return style;
     }
 
     async applyStyles() {
         for (const style of GlobalMod.instance.styles) {
-            if (style) {
-                style?.classList.remove(GlobalMod.ActiveClass);
-            }
+            style.remove();
         }
 
         for (const [, rule] of GlobalMod.instance.config) {
@@ -81,19 +75,13 @@ class GlobalMod {
 
             if (current.includes(rule.path.toLowerCase())) {
                 try {
-                    const tree = await GlobalMod.instance.selectTree(`home-assistant$${rule.selector}`, 1, 6);
+                    const tree = await GlobalMod.instance.selectTree(`home-assistant$${rule.selector}`, 0, 10);
                     const style = await GlobalMod.instance.addStyleElement(tree, rule);
 
                     GlobalMod.instance.styles.push(style);
                 } catch {
                     console.error(`Could not add style element to ${rule.selector}.`);
                 }
-            }
-        }
-
-        for (const style of GlobalMod.instance.styles) {
-            if (style && !style.classList.contains(GlobalMod.ActiveClass)) {
-                style.remove();
             }
         }
     }
