@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.4
+- Bugfix: re-add active class
+
 ## 0.1.2
 - Bugfix: remove active class optimization
 - Increased exponential retries
