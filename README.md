@@ -55,7 +55,7 @@ Reloading themes can be done from the **Services** tab in **Developer Tools**:
 > [!IMPORTANT]  
 > You need to refresh your browser after reloading themes for the theme to take effect.
 
-### Example
+### Basic Example
 
 ```yaml
 default-global-mod:
@@ -80,6 +80,81 @@ This example will mod the default theme and
 
 ![Example](images/example.png)
 
-### Troubleshooting
+## Troubleshooting
 
 You can search for HTML style elements `global-mod` class to see where your mods are being placed. In addition this script generates console logging if something goes wrong.
+
+## Examples
+
+### Transparent Header
+
+Header will be transparent except for when you can scroll, than it reverts to the primary header color.
+
+```yaml
+transparentHeader-path: 'lovelace/'
+transparentHeader-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
+transparentHeader-style: |
+  .header {
+    --app-header-background-color: transparent;
+    --app-header-text-color: var(--primary-text-color);
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  :host([scrolled]) .header {
+    --app-header-background-color: unset;
+    --app-header-text-color: unset;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+```
+
+### Hide action items (search, assistant, edit) when unused
+
+This will also show them when you mouse over (hover) the toolbar.
+
+```yaml
+hideActionItems-path: 'lovelace/'
+hideActionItems-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
+hideActionItems-style: |
+  .toolbar .action-items { 
+    visibility: hidden; 
+    opacity: 0;
+    transition: opacity 0.4s linear;
+  }
+  
+  .toolbar:hover .action-items, .edit-mode .toolbar .action-items { 
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.4s linear;
+  }
+```
+
+### Remove action items (edit) on mobile devices
+
+This will completely remove the overflow menu on mobile devices.
+
+```yaml
+removeEditOnMobile-path: 'lovelace/'
+removeEditOnMobile-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
+removeEditOnMobile-style: |
+  @media all and (max-width: 767px) {
+    .toolbar .action-items { display:none!important; }
+  }
+```
+
+### Remove header tab chevrons
+
+Never show the tab chevrons to get more screen width for dashboard tabs.
+
+```yaml
+removeHeaderTabChevrons-path: 'lovelace/'
+removeHeaderTabChevrons-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div ha-tabs$'
+removeHeaderTabChevrons-style: 'paper-icon-button { display:none!important; }'
+```
+
+### Remove tip element in config
+
+```yaml
+removeTip-path: 'config/dashboard'
+removeTip-selector: 'home-assistant-main$ha-drawer ha-config-dashboard$'
+removeTip-style: 'ha-tip { display: none!important; }'
+```
