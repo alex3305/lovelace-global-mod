@@ -2,6 +2,7 @@
 
 ## 0.1.4
 - Bugfix: re-add active class
+- Add event listener for when HA becomes visible again (ie. alt-tab)
 
 ## 0.1.2
 - Bugfix: remove active class optimization

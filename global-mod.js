@@ -25,6 +25,12 @@ class GlobalMod {
             GlobalMod.instance.hass = document.querySelector('home-assistant').hass;
             GlobalMod.instance.applyStyles();
         }, false);
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                GlobalMod.instance.applyStyles();
+            }
+        }, false);
     }
 
     static get DarkMode() { return GlobalMod.instance.hass.themes.darkMode; }
