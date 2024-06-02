@@ -12,32 +12,53 @@ class GlobalMod {
     
     constructor() {
         GlobalMod.instance = this;
-
-        GlobalMod.instance.hass = document.querySelector('home-assistant').hass;
         GlobalMod.instance.styles = [];
-
+        
+        GlobalMod.instance.refreshHomeAssistant();
         GlobalMod.instance.loadConfig();
         GlobalMod.instance.applyStyles();
 
-        window.addEventListener('location-changed', () => GlobalMod.instance.applyStyles(), false);
-        window.addEventListener('popstate', () => GlobalMod.instance.applyStyles(), false);
-        window.addEventListener('settheme', () => {
-            GlobalMod.instance.hass = document.querySelector('home-assistant').hass;
-            GlobalMod.instance.applyStyles();
-        }, false);
-
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                GlobalMod.instance.applyStyles();
-            }
-        }, false);
+        GlobalMod.instance.addEventListeners();
     }
 
     static get DarkMode() { return GlobalMod.instance.hass.themes.darkMode; }
     
     static get Name() { return 'global-mod'; }
 
-    static get Version() { return '0.1.4'; }
+    static get Version() { return '0.1.5'; }
+
+    addEventListeners() {
+        // Listen to location-changed for navigation
+        // Reference: https://github.com/home-assistant/frontend/blob/fa03c58a93219ad008df3806ac50d2fd893ad87d/hassio/src/hassio-main.ts#L49-L56
+        window.addEventListener('location-changed', () => GlobalMod.instance.applyStyles(), false);
+
+        // Listen to popstate for history tracking
+        window.addEventListener('popstate', () => GlobalMod.instance.applyStyles(), false);
+
+        // Listen to visibility change (ie. re-focus) for scroll changes
+        // Reference: https://github.com/home-assistant/frontend/issues/20854
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                GlobalMod.instance.applyStyles();
+            }
+        }, false);
+
+        // Listen to click event on document body for navigation.
+        // This was also needed to apply styles when switching dashboards
+        // Reference: https://github.com/home-assistant/frontend/blob/fa03c58a93219ad008df3806ac50d2fd893ad87d/hassio/src/hassio-main.ts#L58-L65
+        document.body.addEventListener('click', () => GlobalMod.instance.applyStyles(), false);
+
+        // Listen to settheme events for when themes change and also reload hass object.
+        // Reference: https://github.com/thomasloven/lovelace-card-mod/blob/f59abc785eabb689ac42a9076197254421f96c60/src/theme-watcher.ts
+        document.querySelector('hc-main')?.addEventListener('settheme', () => {
+            GlobalMod.instance.refreshHomeAssistant();
+            GlobalMod.instance.applyStyles();
+        }, false);
+        document.querySelector('home-assistant')?.addEventListener('settheme', () => {
+            GlobalMod.instance.refreshHomeAssistant();
+            GlobalMod.instance.applyStyles();
+        }, false);
+    }
 
     async addStyleElement(tree, rule) {
         const style = document.createElement('style');
@@ -70,7 +91,7 @@ class GlobalMod {
 
             if (current.includes(rule.path.toLowerCase())) {
                 try {
-                        const tree = await GlobalMod.instance.selectTree(`home-assistant$${rule.selector}`, 1, 9);
+                    const tree = await GlobalMod.instance.selectTree(`home-assistant$${rule.selector}`, 1, 9);
                     const style = await GlobalMod.instance.addStyleElement(tree, rule);
                     
                     style?.classList?.add(name);
@@ -110,6 +131,10 @@ class GlobalMod {
         } else {
             console.info(`%c Global Mod %c ${GlobalMod.Version} `, 'color:white;background:purple;', 'color:white;background:darkgreen;');
         }
+    }
+
+    refreshHomeAssistant() {
+        GlobalMod.instance.hass = document.querySelector('home-assistant').hass;
     }
 
     async selectTree(selector, iterations, maxIterations) {

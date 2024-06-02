@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5
+- Bugfix: Switching dashboards wouldn't always trigger global mod
+- Bugfix: Fix global mod on theme change
+
 ## 0.1.4
 - Bugfix: re-add active class
 - Add event listener for when HA becomes visible again (ie. alt-tab)
