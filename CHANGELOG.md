@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6
+- Bugfix: Try and apply elements last 
+- Add Javascript bundler
+- Move dist version to minified and bundled version
+
 ## 0.1.5
 - Bugfix: Switching dashboards wouldn't always trigger global mod
 - Bugfix: Fix global mod on theme change

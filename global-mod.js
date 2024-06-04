@@ -1,4 +1,4 @@
-'use strict';
+import { name, version } from './package.json';
 
 class GlobalMod {
 
@@ -23,16 +23,17 @@ class GlobalMod {
 
     static get DarkMode() { return GlobalMod.instance.hass.themes.darkMode; }
     
-    static get Name() { return 'global-mod'; }
+    static get Name() { return name; }
 
-    static get Version() { return '0.1.5'; }
+    static get Version() { return version; }
 
     addEventListeners() {
-        // Listen to location-changed for navigation
+        // Listen to location-changed for navigation.
+        // Wrapped in setTimeout to try and execute last.
         // Reference: https://github.com/home-assistant/frontend/blob/fa03c58a93219ad008df3806ac50d2fd893ad87d/hassio/src/hassio-main.ts#L49-L56
-        window.addEventListener('location-changed', () => GlobalMod.instance.applyStyles(), false);
+        window.addEventListener('location-changed', () => setTimeout(() => GlobalMod.instance.applyStyles()), false);
 
-        // Listen to popstate for history tracking
+        // Listen to popstate for history tracking.
         window.addEventListener('popstate', () => GlobalMod.instance.applyStyles(), false);
 
         // Listen to visibility change (ie. re-focus) for scroll changes
@@ -44,7 +45,6 @@ class GlobalMod {
         }, false);
 
         // Listen to click event on document body for navigation.
-        // This was also needed to apply styles when switching dashboards
         // Reference: https://github.com/home-assistant/frontend/blob/fa03c58a93219ad008df3806ac50d2fd893ad87d/hassio/src/hassio-main.ts#L58-L65
         document.body.addEventListener('click', () => GlobalMod.instance.applyStyles(), false);
 

@@ -1,10 +1,11 @@
 {
   "name": "ha-global-mod",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A custom script that can mod everything in Home Assistant",
   "main": "global-mod.js",
   "scripts": {
-    "lint": "npx eslint global-mod.js"
+    "lint": "npx eslint global-mod.js",
+    "dist": "npx esbuild global-mod.js --bundle --minify --outdir=dist"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
   "homepage": "https://github.com/alex3305/ha-global-mod#readme",
   "devDependencies": {
     "@eslint/js": "^9.2.0",
+    "esbuild": "^0.21.4",
     "eslint": "^9.2.0",
     "globals": "^15.2.0"
   }
