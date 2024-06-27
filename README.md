@@ -91,20 +91,20 @@ You can search for HTML style elements `global-mod` class to see where your mods
 Header will be transparent except for when you can scroll, than it reverts to the primary header color.
 
 ```yaml
-transparentHeader-path: 'lovelace/'
-transparentHeader-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
-transparentHeader-style: |
-  .header {
-    --app-header-background-color: transparent;
-    --app-header-text-color: var(--primary-text-color);
-    transition: background-color 0.5s ease, color 0.5s ease;
-  }
+  transparentHeader-path: 'lovelace/'
+  transparentHeader-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
+  transparentHeader-style: |
+    .header {
+      --app-header-background-color: transparent;
+      --app-header-text-color: var(--primary-text-color);
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
 
-  :host([scrolled]) .header {
-    --app-header-background-color: unset;
-    --app-header-text-color: unset;
-    transition: background-color 0.5s ease, color 0.5s ease;
-  }
+    :host([scrolled]) .header {
+      --app-header-background-color: unset;
+      --app-header-text-color: unset;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
 ```
 
 ### Hide action items (search, assistant, edit) when unused
@@ -112,20 +112,20 @@ transparentHeader-style: |
 This will also show them when you mouse over (hover) the toolbar.
 
 ```yaml
-hideActionItems-path: 'lovelace/'
-hideActionItems-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
-hideActionItems-style: |
-  .toolbar .action-items { 
-    visibility: hidden; 
-    opacity: 0;
-    transition: opacity 0.4s linear;
-  }
-  
-  .toolbar:hover .action-items, .edit-mode .toolbar .action-items { 
-    visibility: visible;
-    opacity: 1;
-    transition: opacity 0.4s linear;
-  }
+  hideActionItems-path: 'lovelace/'
+  hideActionItems-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
+  hideActionItems-style: |
+    .toolbar .action-items { 
+      visibility: hidden; 
+      opacity: 0;
+      transition: opacity 0.4s linear;
+    }
+    
+    .toolbar:hover .action-items, .edit-mode .toolbar .action-items { 
+      visibility: visible;
+      opacity: 1;
+      transition: opacity 0.4s linear;
+    }
 ```
 
 ### Remove action items (edit) on mobile devices
@@ -133,12 +133,12 @@ hideActionItems-style: |
 This will completely remove the overflow menu on mobile devices.
 
 ```yaml
-removeEditOnMobile-path: 'lovelace/'
-removeEditOnMobile-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
-removeEditOnMobile-style: |
-  @media all and (max-width: 767px) {
-    .toolbar .action-items { display:none!important; }
-  }
+  removeEditOnMobile-path: 'lovelace/'
+  removeEditOnMobile-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div'
+  removeEditOnMobile-style: |
+    @media all and (max-width: 767px) {
+      .toolbar .action-items { display:none!important; }
+    }
 ```
 
 ### Remove header tab chevrons
@@ -146,15 +146,65 @@ removeEditOnMobile-style: |
 Never show the tab chevrons to get more screen width for dashboard tabs.
 
 ```yaml
-removeHeaderTabChevrons-path: 'lovelace/'
-removeHeaderTabChevrons-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div ha-tabs$'
-removeHeaderTabChevrons-style: 'paper-icon-button { display:none!important; }'
+  removeHeaderTabChevrons-path: 'lovelace/'
+  removeHeaderTabChevrons-selector: 'home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$div ha-tabs$'
+  removeHeaderTabChevrons-style: 'paper-icon-button { display:none!important; }'
+```
+
+### Transparent header in Configuration section
+
+```yaml
+  transparentHeaderConfig-path: 'config/dashboard'
+  transparentHeaderConfig-selector: home-assistant-main$partial-panel-resolver ha-config-dashboard$ha-top-app-bar-fixed$
+  transparentHeaderConfig-style: |
+    header {
+      --app-header-background-color: transparent;
+      --app-header-text-color: var(--primary-text-color);
+      --app-header-border-bottom: none!important;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+    header.mdc-top-app-bar--fixed-scrolled {
+      --app-header-background-color: unset;
+      --app-header-text-color: unset;
+      --app-header-border-bottom: unset;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
 ```
 
 ### Remove tip element in config
 
 ```yaml
-removeTip-path: 'config/dashboard'
-removeTip-selector: 'home-assistant-main$ha-drawer ha-config-dashboard$'
-removeTip-style: 'ha-tip { display: none!important; }'
+  removeTip-path: 'config/dashboard'
+  removeTip-selector: 'home-assistant-main$ha-drawer ha-config-dashboard$'
+  removeTip-style: 'ha-tip { display: none!important; }'
+```
+
+### Replace subview header title with image
+
+```yaml
+  rituals-path: rituals-perfume-genie
+  rituals-selector: home-assistant-main$partial-panel-resolver ha-panel-lovelace$hui-root$
+  rituals-style: |
+    .header { 
+      --app-header-text-color: #fff; 
+      box-shadow: var(--material-shadow-elevation-16dp);
+    }
+    @media all and (max-width: 767px) {
+      .toolbar .action-items { display:none!important; }
+      .main-title { --margin-title: 2px 24px 0 12px; }
+    }
+
+    .main-title {
+      background-image: url(https://brands.home-assistant.io/rituals_perfume_genie/logo.png);
+      background-position: top left;
+      background-size: contain;
+      background-repeat: no-repeat;
+      color: transparent;
+      filter: invert(100%);
+    }
+  rituals-style-dark: |
+    .header { --app-header-background-color: #1a1919; }
+  rituals-style-light: |
+    .header { --app-header-background-color: #242222; }
 ```
