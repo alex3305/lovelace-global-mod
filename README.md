@@ -6,7 +6,7 @@ A custom script that can mod everything in Home Assistant using local style elem
 
 ### HACS
 
-1. Add this repo as custom repo to HACS
+1. Add this repo as custom **Lovelace** repository to HACS
 2. Install this component
 
 ### Manual 
