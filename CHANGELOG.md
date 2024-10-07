@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.0
+- Add disable on edit option
+
 ## 0.1.6
 - Bugfix: Try and apply elements last 
 - Add Javascript bundler

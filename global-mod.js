@@ -88,8 +88,13 @@ class GlobalMod {
             }
 
             const current = window.location.pathname.toLowerCase();
+            const editMode = window.location.search.includes('?edit=1');
 
             if (current.includes(rule.path.toLowerCase())) {
+                if (editMode && rule.disableOnEdit) {
+                    continue;
+                }
+
                 try {
                     const tree = await GlobalMod.instance.selectTree(`home-assistant$${rule.selector}`, 1, 9);
                     const style = await GlobalMod.instance.addStyleElement(tree, rule);
@@ -99,7 +104,7 @@ class GlobalMod {
 
                     GlobalMod.instance.styles.push(style);
                 } catch {
-                    console.error(`Could not add style element to ${rule.selector}.`);
+                    console.error(`Could not create rule ${name} after multiple tries...`);
                 }
             }
         }

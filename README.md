@@ -33,6 +33,7 @@ Modding is based on theme variables. So basically you'll need to add a special `
 | ------------------ | ------ |
 | `NAME-path`        | The URL path that is used to match on. |
 | `NAME-selector`    | The DOM selector that is used to place the CSS Style element on. |
+| `NAME-disableOnEdit` | Whether to disable this rule in edit mode. |
 | `NAME-style`       | Your CSS style (mod) that is applied regardless of light or dark mode. |
 | `NAME-style-light` | Your CSS style (mod) that is only applied in light mode. |
 | `NAME-style-dark`  | Your CSS style (mod) that is only applied in dark mode. |
