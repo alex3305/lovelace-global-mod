@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+- Fix HACS installation
+- Move output to root directory
+
 ## 0.2.0
 - Add disable on edit option
 
