@@ -114,8 +114,15 @@ class GlobalMod {
     }
 
     loadConfig() {
-        const currentTheme = `${GlobalMod.instance.hass.themes.theme}-${GlobalMod.Name}`;
         GlobalMod.instance.config = new Map();
+        let currentTheme = `${GlobalMod.instance.hass.themes.theme}-${GlobalMod.Name}`;
+
+        // Fall back to theme name without global-mod suffix. This should be 
+        if (!(currentTheme in GlobalMod.instance.hass.themes.themes)) {
+            currentTheme = `${GlobalMod.instance.hass.themes.theme}`;
+        } else {
+            console.warn(`Theme still uses the deprecated ${GlobalMod.Name}-suffix.`);
+        }
 
         for (var k in GlobalMod.instance.hass.themes.themes[currentTheme]) {
             const ruleKey = k.substring(0, k.indexOf('-'));

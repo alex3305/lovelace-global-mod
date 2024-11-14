@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.0
+- Move to using mods within themes without `-global-mod` suffix
+
 ## 0.2.1
 - Fix HACS installation
 - Move output to root directory
