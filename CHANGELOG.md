@@ -2,6 +2,9 @@
 
 ## 0.3.0
 - Move to using mods within themes without `-global-mod` suffix
+- Pre-check mod variables when loading instead of at runtime
+- Improved performance when adding style elements
+- Forcefully `display:none;` on style elements
 
 ## 0.2.1
 - Fix HACS installation
