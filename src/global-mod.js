@@ -13,23 +13,26 @@ class GlobalMod {
     constructor() {
         GlobalMod.instance = this;
         GlobalMod.instance.styles = [];
-        GlobalMod.instance.refreshHomeAssistant();
-    
-        GlobalMod.instance.loadConfig();
-        GlobalMod.instance.addEventListeners();
+
+        GlobalMod.instance.refreshHomeAssistant(),
+
+        Promise.all([
+            GlobalMod.instance.loadConfig(),
+            GlobalMod.instance.addEventListeners()
+        ]);
     }
 
     static get Current() { return window.location.pathname.toLowerCase(); }
 
     static get DarkMode() { return GlobalMod.instance.hass.themes.darkMode; }
     
-    static get EditMode() { return window.location.search.includes('?edit=1'); }
+    static get EditMode() { return GlobalMod.Current.includes('?edit=1'); }
     
     static get Name() { return name; }
 
     static get Version() { return version; }
 
-    addEventListeners() {
+    async addEventListeners() {
         // Listen to location-changed for navigation.
         // Wrapped in setTimeout to try and execute last.
         // Reference: https://github.com/home-assistant/frontend/blob/fa03c58a93219ad008df3806ac50d2fd893ad87d/hassio/src/hassio-main.ts#L49-L56
