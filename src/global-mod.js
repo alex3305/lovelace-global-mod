@@ -109,10 +109,14 @@ class GlobalMod {
     }
 
     async applyStyles() {
-        this.#config.forEach((rule) => {
-            let style = this.#styles.find(e => e.classList?.contains(name));
-            this.applyStyle(rule, GlobalMod.Current, GlobalMod.EditMode, style);
-        })
+        this.#config.forEach(rule => {
+            this.applyStyle(
+                rule,
+                GlobalMod.Current,
+                GlobalMod.EditMode,
+                this.#styles.find(e => e.classList?.contains(rule.name))
+            );
+        });
     }
 
     async loadConfig() {
@@ -127,14 +131,14 @@ class GlobalMod {
 
         const theme = this.#hass.themes.themes[currentTheme];
         this.#config = await Promise.all(Object.keys(theme)
-                             .filter(elem => elem.includes("-selector"))
-                             .map(elem => this.loadRule(theme, elem))
-                             .map(elem => {
-                                (async () => elem.then((rule) => {
-                                    this.applyStyle(rule, GlobalMod.Current, GlobalMod.EditMode)
-                                }))();
-                                return elem;
-                             }));
+                .filter(elem => elem.includes('-selector'))
+                .map(elem => this.createRule(theme, elem))
+                .map(elem => {
+                    (async () => {
+                        this.applyStyle(await elem, GlobalMod.Current, GlobalMod.EditMode)
+                    })();
+                    return elem;
+                }));
 
         if (!this.#config || this.#config.size == 0) {
             console.info(`%c Global mod %c loaded without any config... \n  👉 Add a 'mods' section to your theme %c ${currentTheme} %c to enable modding.`,
@@ -144,7 +148,7 @@ class GlobalMod {
         }
     }
 
-    async loadRule(theme, selector) {
+    async createRule(theme, selector) {
         const ruleName = selector.substring(0, selector.lastIndexOf("-"));
         return {
             name: ruleName,
