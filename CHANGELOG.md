@@ -5,6 +5,8 @@
 - Pre-check mod variables when loading instead of at runtime
 - Improved performance when adding style elements
 - Forcefully `display:none;` on style elements
+- **BREAKING** Changed `disableOnEdit` to `disable-on-edit`
+- **BREAKING** Remove hyphen limitation on key names
 
 ## 0.2.1
 - Fix HACS installation

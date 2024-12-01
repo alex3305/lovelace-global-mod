@@ -19,27 +19,24 @@ A custom script that can mod everything in Home Assistant using local style elem
 
 ### Basic usage
 
-1. Add a `-global-mod` theme
+1. Extend a theme with global mod keys
 2. Reload your themes
 3. Refresh your browser
 
 ### How it works
 
-Modding is based on theme variables. So basically you'll need to add a special `-global-mod` theme prefixed with the name of your current theme. So for default this will be `default-global-mod`. There you can add `path`, `selector`, `style`, `style-light` and `style-dark` keys for modding. You can also easily override CSS variables within the style elements. See below for a complete example.
+Modding is based on theme variables. So basically you'll need to add special keys within your theme. There you can add `path`, `selector`, `style`, `style-light` and `style-dark` keys for modding. You can also easily override CSS variables within the style elements. See below for a complete example.
 
 ### Available keys
 
 | Key                | Usage |
 | ------------------ | ------ |
-| `NAME-path`        | The URL path that is used to match on. |
-| `NAME-selector`    | The DOM selector that is used to place the CSS Style element on. |
-| `NAME-disableOnEdit` | Whether to disable this rule in edit mode. |
+| `NAME-path`        | The URL path that is used to match on, defaults to `"/"` |
+| `NAME-selector`    | The required DOM selector that is used to place the CSS Style element on. |
+| `NAME-disable-on-edit` | Whether to disable this rule in edit mode. |
 | `NAME-style`       | Your CSS style (mod) that is applied regardless of light or dark mode. |
 | `NAME-style-light` | Your CSS style (mod) that is only applied in light mode. |
 | `NAME-style-dark`  | Your CSS style (mod) that is only applied in dark mode. |
-
-> [!IMPORTANT]  
-> Don't use hyphens (-) in your mod name. I recommend that you use camelCase as seen below.
 
 ### DOM navigation
 
@@ -59,7 +56,11 @@ Reloading themes can be done from the **Services** tab in **Developer Tools**:
 ### Basic Example
 
 ```yaml
-default-global-mod:
+default:
+  modes:
+    dark: {}
+    light: {}
+
   yellowDrawer-path: '/'
   yellowDrawer-selector: 'home-assistant-main$ha-drawer'
   yellowDrawer-style: |
