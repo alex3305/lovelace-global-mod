@@ -9,6 +9,8 @@ import { name, version } from '../package.json';
  */
 class GlobalMod {
 
+    #hass;
+
     #config = [];
 
     #styles = [];
@@ -18,10 +20,21 @@ class GlobalMod {
      * applies initial styling and adds event listeners.
      */
     constructor() {
-        Promise.all([
-            this.loadConfig(),
-            this.addEventListeners()
-        ]);
+        new Promise((resolve) => {
+            const loop = () => {
+                document.querySelector('home-assistant')?.hass !== undefined ?
+                    resolve(document.querySelector('home-assistant').hass) :
+                    setTimeout(loop);
+                }
+            loop();
+        }).then((hass) => {
+            this.#hass = hass;
+
+            Promise.all([
+                this.loadConfig(),
+                this.addEventListeners()
+            ]);
+        })
     }
 
     /**
@@ -37,16 +50,6 @@ class GlobalMod {
      * @returns {boolean} True when edit mode is enabled.
      */
     static get EditMode() { return window.location.search.includes('?edit=1'); }
-    
-    /**
-     * Reference to the Home Assistant HASS object that contains 
-     * the current configuration.
-     * 
-     * @returns {Object} Home Assistant frontend configuration.
-     */
-    static get Hass() {
-        return document.querySelector('home-assistant').hass;
-    }
 
     /**
      * Gets the name of this component.
@@ -67,7 +70,24 @@ class GlobalMod {
      * 
      * @returns {boolean} True when the user has dark mode enabled.
      */
-    get darkMode() { return GlobalMod.Hass.themes.darkMode; }
+    get darkMode() { return this.#hass.themes.darkMode; }
+
+    /**
+     * Gets the current theme for modding
+     * 
+     * @returns {Object} Current theme
+     */
+    get theme() {
+        const themes = this.#hass.themes.themes;
+        const themeName = this.#hass.themes.theme;
+
+        if (Object.hasOwn(themes, `${themeName}-${GlobalMod.Name}`)) {
+            console.warn(`Theme still uses the deprecated ${GlobalMod.Name}-suffix.`);
+            return themes[`${themeName}-${GlobalMod.Name}`];
+        } else {
+            return themes[themeName];
+        }
+    }
 
     /**
      * Adds an event listener to a given target without capturing.
@@ -198,7 +218,7 @@ class GlobalMod {
             if (!rule.darkStyle && !rule.lightStyle) {
                 style.textContent = rule.style;
             } else {
-                style.textContent = rule.style + 
+                style.textContent = rule.style + " " +
                     (this.darkMode ? rule.darkStyle : rule.lightStyle);
             }
         })();
@@ -211,16 +231,8 @@ class GlobalMod {
      * rules that are present within the user selected theme.
      */
     async loadConfig() {
-        let currentTheme = `${GlobalMod.Hass.themes.theme}-${GlobalMod.Name}`;
+        const theme = this.theme;
 
-        // Fall back to theme name without global-mod suffix. This should be temporary.
-        if (!(currentTheme in GlobalMod.Hass.themes.themes)) {
-            currentTheme = `${GlobalMod.Hass.themes.theme}`;
-        } else {
-            console.warn(`Theme still uses the deprecated ${GlobalMod.Name}-suffix.`);
-        }
-
-        const theme = GlobalMod.Hass.themes.themes[currentTheme];
         this.#config = await Promise.all(Object.keys(theme)
                 .filter(elem => elem.includes('-selector'))
                 .map(elem => this.createRule(theme, elem))
@@ -230,10 +242,14 @@ class GlobalMod {
                 }));
 
         if (!this.#config || this.#config.size == 0) {
-            console.info(`%c Global mod %c loaded without any config... \n  👉 Add a 'mods' section to your theme %c ${currentTheme} %c to enable modding.`,
-                    'color:white;background:purple;', '', 'color:black;background:lightblue;', '');
+            console.info(`%c Global mod %c loaded without any config...`,
+                'color:white;background:purple;', 
+                '', 
+                'color:black;background:lightblue;', '');
         } else {
-            console.info(`%c Global Mod %c ${GlobalMod.Version} `, 'color:white;background:purple;', 'color:white;background:darkgreen;');
+            console.info(`%c Global Mod %c ${GlobalMod.Version} `, 
+                'color:white;background:purple;', 
+                'color:white;background:darkgreen;');
         }
     }
 
