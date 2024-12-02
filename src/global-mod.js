@@ -27,56 +27,50 @@ class GlobalMod {
     
     get darkMode() { return this.#hass.themes.darkMode; }
 
+    async addEventListener(element, event, fn) {
+        element?.addEventListener(event, fn, false);
+    }
+
     async addEventListeners() {
+        const applyStylesEvent = () => {
+            if (!document.hidden) {
+                this.applyStyles();
+            }
+        };
+
+        const refreshAndApplyStylesEvent = () => {
+            this.refreshHomeAssistant();
+            this.applyStyles();
+        }
+
         Promise.all([
             // Listen to location-changed for navigation.
             // Wrapped in setTimeout to try and execute last.
             // Reference: https://github.com/home-assistant/frontend/blob/fa03c58a93219ad008df3806ac50d2fd893ad87d/hassio/src/hassio-main.ts#L49-L56
-            window.addEventListener('location-changed', () => setTimeout(() => this.applyStyles()), false),
+            this.addEventListener(window, "location-changed", applyStylesEvent),
 
             // Listen to popstate for history tracking.
-            window.addEventListener('popstate', () => this.applyStyles(), false),
+            this.addEventListener(window, "popstate", applyStylesEvent),
 
             // Listen to visibility change (ie. re-focus) for scroll changes
             // Reference: https://github.com/home-assistant/frontend/issues/20854
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) {
-                    this.applyStyles();
-                }
-            }, false),
+            this.addEventListener(document, "visibilitychange", applyStylesEvent),
 
             // Listen to click event on document body for navigation.
             // Reference: https://github.com/home-assistant/frontend/blob/fa03c58a93219ad008df3806ac50d2fd893ad87d/hassio/src/hassio-main.ts#L58-L65
-            document.body.addEventListener('click', () => this.applyStyles(), false),
+            this.addEventListener(document.body, "click", applyStylesEvent),
 
             // Listen to settheme events for when themes change and also reload hass object.
             // Reference: https://github.com/thomasloven/lovelace-card-mod/blob/f59abc785eabb689ac42a9076197254421f96c60/src/theme-watcher.ts
-            document.querySelector('hc-main')?.addEventListener('settheme', () => {
-                this.refreshHomeAssistant();
-                this.applyStyles();
-            }, false),
-            document.querySelector('home-assistant')?.addEventListener('settheme', () => {
-                this.refreshHomeAssistant();
-                this.applyStyles();
-            }, false)
+            this.addEventListener(document.querySelector('hc-main'), 
+                                  "settheme",
+                                  refreshAndApplyStylesEvent),
+            this.addEventListener(document.querySelector('home-assistant'), 
+                                  "settheme",
+                                  refreshAndApplyStylesEvent)
         ]);
     }
 
-    async createStyleElement(rule) {
-        const style = document.createElement('style');
-                
-        style.classList?.add(GlobalMod.Name);
-        style.setAttribute('type', 'text/css');
-        style.setAttribute('style', 'display:none;');
-
-        style.textContent += rule.style;
-        if (rule.darkStyle !== undefined || rule.lightStyle !== undefined) {
-            style.textContent += this.darkMode ? 
-                rule.darkStyle : rule.lightStyle;
-        }
-
-        return style;
-    }
 
     async applyStyle(rule, current, editMode, style = undefined) {
         if (!current.includes(rule.path.toLowerCase())) {
@@ -100,8 +94,10 @@ class GlobalMod {
             const tree = await this.selectTree(`home-assistant$${rule.selector}`, 1, 9);
             
             if (!tree.contains(style)) {
-                tree.appendChild(style);
-                this.#styles.push(style);
+                Promise.all([
+                    tree.append(style),
+                    this.#styles.push(style)
+                ]);
             }
         } catch {
             console.error(`Could not create rule ${rule.name} after multiple tries...`);
@@ -117,6 +113,37 @@ class GlobalMod {
                 this.#styles.find(e => e.classList?.contains(rule.name))
             );
         });
+    }
+
+    async createRule(theme, selector) {
+        const ruleName = selector.substring(0, selector.lastIndexOf("-"));
+        return {
+            name: ruleName,
+            selector: theme[selector],
+            path: theme[ruleName + "-path"] || "/",
+            style: theme[ruleName + "-style"] || "",
+            disabledOnEdit: theme[ruleName + "-disable-on-edit"] || false,
+            darkStyle: theme[ruleName + "-style-dark"],
+            lightStyle: theme[ruleName + "-style-light"],
+        };
+    }
+
+    async createStyleElement(rule) {
+        const style = document.createElement('style');
+
+        style.classList?.add(GlobalMod.Name);
+        style.setAttribute('style', 'display:none;');
+
+        (async () => {
+            if (!rule.darkStyle && !rule.lightStyle) {
+                style.textContent = rule.style;
+            } else {
+                style.textContent = rule.style + 
+                    (this.darkMode ? rule.darkStyle : rule.lightStyle);
+            }
+        })();
+
+        return style;
     }
 
     async loadConfig() {
@@ -146,19 +173,6 @@ class GlobalMod {
         } else {
             console.info(`%c Global Mod %c ${GlobalMod.Version} `, 'color:white;background:purple;', 'color:white;background:darkgreen;');
         }
-    }
-
-    async createRule(theme, selector) {
-        const ruleName = selector.substring(0, selector.lastIndexOf("-"));
-        return {
-            name: ruleName,
-            selector: theme[selector],
-            path: theme[ruleName + "-path"] || "/",
-            style: theme[ruleName + "-style"] || "",
-            disabledOnEdit: theme[ruleName + "-disable-on-edit"] || false,
-            darkStyle: theme[ruleName + "-style-dark"],
-            lightStyle: theme[ruleName + "-style-light"],
-        };
     }
 
     refreshHomeAssistant() {
