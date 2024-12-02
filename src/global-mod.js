@@ -19,7 +19,7 @@ class GlobalMod {
 
     static get Current() { return window.location.pathname.toLowerCase(); }
 
-    static get EditMode() { return GlobalMod.Current.includes('?edit=1'); }
+    static get EditMode() { return window.location.search.includes('?edit=1'); }
     
     static get Name() { return name; }
     
@@ -73,15 +73,9 @@ class GlobalMod {
 
 
     async applyStyle(rule, current, editMode, style = undefined) {
-        if (!current.includes(rule.path.toLowerCase())) {
-            if (style !== undefined) {
-                style.remove();
-            }
-
-            return;
-        }
-
-        if (editMode && rule.disabledOnEdit) {
+        if (!current.includes(rule.path.toLowerCase()) || 
+                (editMode && rule.disabledOnEdit)) {
+            style?.remove();
             return;
         }
 
@@ -117,6 +111,7 @@ class GlobalMod {
 
     async createRule(theme, selector) {
         const ruleName = selector.substring(0, selector.lastIndexOf("-"));
+        
         return {
             name: ruleName,
             selector: theme[selector],
