@@ -1,12 +1,12 @@
 # Changelog
 
 ## 0.3.0
-- Move to using mods within themes without `-global-mod` suffix
-- Pre-check mod variables when loading instead of at runtime
-- Improved performance when adding style elements
-- Forcefully `display:none;` on style elements
 - **BREAKING** Changed `disableOnEdit` to `disable-on-edit`
 - **BREAKING** Remove hyphen limitation on key names
+- **BREAKING** Move to using mods within themes without `-global-mod` suffix
+- Pre-check mod variables when loading instead of at mod time
+- Improved performance when adding style elements
+- Add `display: none` on style elements
 
 ## 0.2.1
 - Fix HACS installation

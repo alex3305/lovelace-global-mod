@@ -157,14 +157,17 @@ class GlobalMod {
         }
 
         try {
-            const tree = await this.selectTree(`home-assistant$${rule.selector}`, 1, 9);
+            // const tree = await this.selectTree(`home-assistant$${rule.selector}`);
+            const tree = await this.findElement(document.body, `home-assistant$${rule.selector}`);
             
             if (!tree.contains(style)) {
-                tree.append(style);
-                this.#styles.push(style);
+                Promise.all([
+                    tree.append(style),
+                    this.#styles.push(style)
+                ]);
             }
-        } catch {
-            console.error(`Could not create rule ${rule.name} after multiple tries...`);
+        } catch (e) {
+            console.error(`Error while applying style: ${e}`);
         }
     }
 
@@ -254,46 +257,105 @@ class GlobalMod {
     }
 
     /**
-     * Selects the tree to append the style element to.
+     * Finds an element based on the given selector.
      * 
-     * @param {string} selector      Semi-DOM selector
-     * @param {number} iterations    Current iteration
-     * @param {number} maxIterations Maximum iterations to search
-     * @returns {Node} Found Node.
+     * @param {Node}   node     Node to start the search on.
+     * @param {string} selector Selector string based on CSS selector.
+     * @returns A found element or an error when no element could be found.
      */
-    async selectTree(selector, iterations, maxIterations) {
-        let components = selector.split('$');
-        let tree;
+    async findElement(node, selector) {
+        const components = selector.trim().split(/([$])/).filter(e => e != "");
 
-        try {
-            for (let i = 0; i < components.length; i++) {
-                if (!components[i]) {
-                    continue;
-                }
-
-                tree = tree ? tree.querySelector(components[i]) : 
-                              document.querySelector(components[i]);
-
-                if (i + 1 < components.length) {
-                    tree = tree.shadowRoot;
-                }
-            }
-
-            if (!tree) {
-                throw new Error();
-            }
-
-            return tree;
-        } catch {
-            console.warn(`Retry for ${selector}`);
-
-            if (iterations === maxIterations) {
-                throw new Error(`No Element Found for ${selector}`);
-            }
-
-            await new Promise((resolve) => setTimeout(resolve, iterations * 10));
-            return await this.selectTree(selector, iterations + 1, maxIterations);
+        for (const c of components) {
+            node = await this.waitForElement(node, c);
         }
+        
+        return node;
+    }
+
+    /**
+     * Waits for an element to be added to the DOM.
+     * 
+     * @param {Node} root       Root node to search on.
+     * @param {string} selector A valid CSS selector.
+     * @param {number} timeout  Maximum timeout to wait for an element in ms.
+     * @returns An element when found or an Error when no element culd be found.
+     */
+    waitForElement(root, selector, timeout = 1000) {
+        const observerOptions = { childList: true, subtree: true };
+        let element = null;
+
+        return new Promise((resolve, reject) => {
+            if (selector === "$") {
+                if (root.shadowRoot) {
+                    return resolve(root.shadowRoot);
+                }
+            } else {
+                element = root.querySelector(selector);
+    
+                if (element) {
+                    return resolve(element);
+                }
+            }
+
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === "childList") {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === Node.ELEMENT_NODE) {
+                                if (selector === "$") {
+                                    if (node.shadowRoot) {
+                                        observer.disconnect();
+                                        clearTimeout(observeTimeout);
+                                        return resolve(node.shadowRoot);
+                                    }
+                                } else if (node.matches(selector)) {
+                                    observer.disconnect();
+                                    clearTimeout(observeTimeout);
+                                    return resolve(node);
+                                } else if (node.shadowRoot) {
+                                    const shadowElement = node.shadowRoot.querySelector(selector);
+                                    if (shadowElement) {
+                                        observer.disconnect();
+                                        clearTimeout(observeTimeout);
+                                        return resolve(shadowElement);
+                                    } else {
+                                        observer.observe(node.shadowRoot, observerOptions);
+                                    }
+                                }
+                                
+                                element = root.querySelector(selector);
+                                if (element) {
+                                    observer.disconnect();
+                                    clearTimeout(observeTimeout);
+                                    return resolve(element);
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+
+            observer.observe(root, observerOptions);
+            const observeTimeout = setTimeout(() => {
+                observer.disconnect();
+                
+                if (selector === "$") {
+                    if (root.shadowRoot) {
+                        return resolve(root.shadowRoot);
+                    }
+                } else {
+                    element = root.querySelector(selector);
+                    if (element) {
+                        return resolve(element);
+                    }
+                }
+
+                return reject(new Error
+                    (`Element not found for ${selector} in ${root.tagName}`)
+                );
+            }, timeout);
+        });
     }
 }
 
