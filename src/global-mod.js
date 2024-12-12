@@ -166,8 +166,9 @@ class GlobalMod {
 
         try {
             const tree = await this.findElement(document.body, `home-assistant$${rule.selector}`);
+            const contains = tree.querySelector("." + rule.name) !== null;
             
-            if (tree && !tree.contains(style)) {
+            if (tree && !contains) {
                 Promise.all([
                     tree.append(style),
                     this.#styles.push(style)
