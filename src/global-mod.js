@@ -41,28 +41,36 @@ class GlobalMod {
      * 
      * @returns {string} Current path of the URL.
      */
-    static get Current() { return window.location.pathname.toLowerCase(); }
+    static get Current() { 
+        return window.location.pathname.toLowerCase(); 
+    }
 
     /**
      * Gets whether edit mode is enabled for the location.
      * 
      * @returns {boolean} True when edit mode is enabled.
      */
-    static get EditMode() { return window.location.search.includes('?edit=1'); }
+    static get EditMode() { 
+        return window.location.search.includes('?edit=1'); 
+    }
 
     /**
      * Gets the name of this component.
      * 
      * @returns {string} Name of this component.
      */
-    static get Name() { return name; }
+    static get Name() { 
+        return name; 
+    }
     
     /**
      * Gets the current version of this component.
      * 
      * @returns {string} Current version of this component.
      */
-    static get Version() { return version; }
+    static get Version() { 
+        return version; 
+    }
     
     /**
      * Gets the current theme for modding
@@ -103,13 +111,13 @@ class GlobalMod {
         };
 
         const updateThemeEvent = (async () => {
-            console.log("update theme start...")
-
             await this.#homeAssistant.update();
             await this.loadConfig();
-            this.applyStyles(true);
 
-            console.log("update theme finished...")
+            this.#styles.forEach(e => e.classList.add("pending"));
+            this.applyStyles(true);
+            this.#styles.filter(e => e.classList.contains("pending"))
+                        .forEach(e => e.remove());
         });
 
         Promise.all([
@@ -144,11 +152,12 @@ class GlobalMod {
     }
 
     /**
-     * Inserts or updates a specific style rule within the DOM and also
+    * Inserts or updates a specific style rule within the DOM and also
      * manages  the backing array with styles.
      * 
-     * @param {GlobalModRule} rule  GlobalMod Rule to apply.
-     * @param {Element}       style Existing style element to modify.
+     * @param {GlobalModRule} rule   GlobalMod Rule to apply.
+     * @param {Element}       style  Existing style element to modify.
+     * @param {boolean}       update Whether this is a forced update.
      */
     async applyStyle(rule, style = undefined, update = false) {
         if (!GlobalMod.Current.includes(rule.path.toLowerCase()) || 
@@ -164,9 +173,11 @@ class GlobalMod {
             style.textContent = updatedStyle.textContent;
         }
 
+        style.classList.remove("pending");
+
         try {
             const tree = await this.findElement(document.body, `home-assistant$${rule.selector}`);
-            const contains = tree.querySelector("." + rule.name) !== null;
+            const contains = tree.querySelector(`style.${GlobalMod.Name}.${rule.name}`) !== null;
             
             if (tree && !contains) {
                 Promise.all([
@@ -181,6 +192,7 @@ class GlobalMod {
 
     /**
      * Applies all the styles found in the loaded configuration.
+     * @param {boolean} update Whether this is a forced update.
      */
     async applyStyles(update = false) {
         this.#config.forEach(rule => {
@@ -222,9 +234,9 @@ class GlobalMod {
     async createStyleElement(rule) {
         const style = document.createElement('style');
 
-        style.classList?.add(GlobalMod.Name);
-        style.classList?.add(rule.name);
-        style.setAttribute('style', 'display:none;');
+        style.classList?.add(GlobalMod.Name, rule.name);
+        style.style.display = "none";
+        // style.setAttribute('style', 'display:none;');
 
         (async () => {
             if (!rule.darkStyle && !rule.lightStyle) {
@@ -251,18 +263,13 @@ class GlobalMod {
                 .map(elem => this.createRule(theme, elem)));
 
         if (!this.#initialized) {
-            this.#config.map(elem => {
-                (async () => this.applyStyle(await elem))();
-                return elem;
-            });
-
+            this.#config.forEach(elem => this.applyStyle(elem));
             this.#initialized = true;
         }
 
         if (!this.#config || this.#config.size == 0) {
             console.info(`%c Global mod %c loaded without any config...`,
-                'color:white;background:purple;', 
-                '', 
+                'color:white;background:purple;', '', 
                 'color:black;background:lightblue;', '');
         }
     }
@@ -354,7 +361,7 @@ class GlobalMod {
                 }
 
                 return reject(new Error
-                    (`Element not found for ${selector} in ${root.tagName}`)
+                    (`Element not found for ${selector} in ${root.tagName?.toLowerCase()}`)
                 );
             }, timeout * iteration);
         });

@@ -4,6 +4,7 @@
 - **BREAKING** Changed `disableOnEdit` to `disable-on-edit`
 - **BREAKING** Remove hyphen limitation on key names
 - **BREAKING** Move to using mods within themes without `-global-mod` suffix
+- Fixed update theme action to refresh styles
 - Pre-check mod variables when loading instead of at mod time
 - Improved performance when adding style elements
 - Add `display: none` on style elements
