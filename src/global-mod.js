@@ -9,10 +9,12 @@ import { name, version } from '../package.json';
  * @author Alex van den Hoogen
  */
 class GlobalMod {
-
+    
+    #config = [];
+    
     #homeAssistant;
 
-    #config = [];
+    #initialized = false;
 
     #styles = [];
     
@@ -27,7 +29,11 @@ class GlobalMod {
                 this.loadConfig(),
                 this.addEventListeners()
             ]);
-        })
+        });
+
+        console.info(`%c Global Mod %c ${GlobalMod.Version} `, 
+            'color:white;background:purple;', 
+            'color:white;background:darkgreen;');
     }
 
     /**
@@ -96,6 +102,16 @@ class GlobalMod {
             }
         };
 
+        const updateThemeEvent = (async () => {
+            console.log("update theme start...")
+
+            await this.#homeAssistant.update();
+            await this.loadConfig();
+            this.applyStyles(true);
+
+            console.log("update theme finished...")
+        });
+
         Promise.all([
             // Listen to location-changed for navigation.
             // Wrapped in setTimeout to try and execute last.
@@ -113,14 +129,17 @@ class GlobalMod {
             // Reference: https://github.com/home-assistant/frontend/blob/fa03c58a93219ad008df3806ac50d2fd893ad87d/hassio/src/hassio-main.ts#L58-L65
             this.addEventListener(document.body, "click", applyStylesEvent),
 
-            // Listen to settheme events for when themes change and also reload hass object.
+            // Listen to theme update events.
             // Reference: https://github.com/thomasloven/lovelace-card-mod/blob/f59abc785eabb689ac42a9076197254421f96c60/src/theme-watcher.ts
+            this.#homeAssistant.connection.subscribeEvents(
+                () => { setTimeout(updateThemeEvent, 500); }, 
+                "themes_updated"),
+
             this.addEventListener(document.querySelector('hc-main'), 
-                                  "settheme",
-                                  applyStylesEvent),
+                "settheme", updateThemeEvent),
+            
             this.addEventListener(document.querySelector('home-assistant'), 
-                                  "settheme",
-                                  applyStylesEvent)
+                "settheme", updateThemeEvent)
         ]);
     }
 
@@ -131,7 +150,7 @@ class GlobalMod {
      * @param {GlobalModRule} rule  GlobalMod Rule to apply.
      * @param {Element}       style Existing style element to modify.
      */
-    async applyStyle(rule, style = undefined) {
+    async applyStyle(rule, style = undefined, update = false) {
         if (!GlobalMod.Current.includes(rule.path.toLowerCase()) || 
                 (GlobalMod.EditMode && rule.disabledOnEdit)) {
             style?.remove();
@@ -140,10 +159,12 @@ class GlobalMod {
 
         if (style === undefined) {
             style = await this.createStyleElement(rule);
+        } else if (update) {
+            const updatedStyle = await this.createStyleElement(rule);
+            style.textContent = updatedStyle.textContent;
         }
 
         try {
-            // const tree = await this.selectTree(`home-assistant$${rule.selector}`);
             const tree = await this.findElement(document.body, `home-assistant$${rule.selector}`);
             
             if (tree && !tree.contains(style)) {
@@ -160,11 +181,12 @@ class GlobalMod {
     /**
      * Applies all the styles found in the loaded configuration.
      */
-    async applyStyles() {
+    async applyStyles(update = false) {
         this.#config.forEach(rule => {
             this.applyStyle(
                 rule,
-                this.#styles.find(e => e.classList?.contains(rule.name))
+                this.#styles.find(e => e.classList?.contains(rule.name)),
+                update
             );
         });
     }
@@ -225,21 +247,22 @@ class GlobalMod {
 
         this.#config = await Promise.all(Object.keys(theme)
                 .filter(elem => elem.includes('-selector'))
-                .map(elem => this.createRule(theme, elem))
-                .map(elem => {
-                    (async () => this.applyStyle(await elem))();
-                    return elem;
-                }));
+                .map(elem => this.createRule(theme, elem)));
+
+        if (!this.#initialized) {
+            this.#config.map(elem => {
+                (async () => this.applyStyle(await elem))();
+                return elem;
+            });
+
+            this.#initialized = true;
+        }
 
         if (!this.#config || this.#config.size == 0) {
             console.info(`%c Global mod %c loaded without any config...`,
                 'color:white;background:purple;', 
                 '', 
                 'color:black;background:lightblue;', '');
-        } else {
-            console.info(`%c Global Mod %c ${GlobalMod.Version} `, 
-                'color:white;background:purple;', 
-                'color:white;background:darkgreen;');
         }
     }
 

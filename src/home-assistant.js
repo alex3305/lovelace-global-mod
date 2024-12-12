@@ -3,6 +3,10 @@ export class HomeAssistant {
 
     #hass;
 
+    get connection() {
+        return (this.#hass ?? this.update()).connection;
+    }
+
     /**
      * Gets whether the user has dark mode enabled in Home Assistant.
      * 
