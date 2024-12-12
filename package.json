@@ -4,7 +4,7 @@
   "description": "A custom script that can mod everything in Home Assistant",
   "main": "src/global-mod.js",
   "scripts": {
-    "lint": "npx eslint src/global-mod.js",
+    "lint": "npx eslint src/*.js",
     "dist": "npx esbuild src/global-mod.js --bundle --minify --outdir=."
   },
   "repository": {

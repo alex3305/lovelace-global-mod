@@ -1,15 +1,16 @@
+import { HomeAssistant } from './home-assistant.js';
 import { name, version } from '../package.json';
 
 "use strict";
 
 /**
- * GlobalMod for Home Assistant.
+ * Global Mod for Home Assistant.
  * 
  * @author Alex van den Hoogen
  */
 class GlobalMod {
 
-    #hass;
+    #homeAssistant;
 
     #config = [];
 
@@ -20,16 +21,8 @@ class GlobalMod {
      * applies initial styling and adds event listeners.
      */
     constructor() {
-        new Promise((resolve) => {
-            const loop = () => {
-                document.querySelector('home-assistant')?.hass !== undefined ?
-                    resolve(document.querySelector('home-assistant').hass) :
-                    setTimeout(loop);
-                }
-            loop();
-        }).then((hass) => {
-            this.#hass = hass;
-
+        this.#homeAssistant = new HomeAssistant();
+        this.#homeAssistant.update().then(() => {
             Promise.all([
                 this.loadConfig(),
                 this.addEventListeners()
@@ -66,20 +59,13 @@ class GlobalMod {
     static get Version() { return version; }
     
     /**
-     * Gets whether the user has dark mode enabled in Home Assistant.
-     * 
-     * @returns {boolean} True when the user has dark mode enabled.
-     */
-    get darkMode() { return this.#hass.themes.darkMode; }
-
-    /**
      * Gets the current theme for modding
      * 
      * @returns {Object} Current theme
      */
     get theme() {
-        const themes = this.#hass.themes.themes;
-        const themeName = this.#hass.themes.theme;
+        const themes = this.#homeAssistant.themes;
+        const themeName = this.#homeAssistant.themeName;
 
         if (Object.hasOwn(themes, `${themeName}-${GlobalMod.Name}`)) {
             console.warn(`Theme still uses the deprecated ${GlobalMod.Name}-suffix.`);
@@ -222,7 +208,8 @@ class GlobalMod {
                 style.textContent = rule.style;
             } else {
                 style.textContent = rule.style + " " +
-                    (this.darkMode ? rule.darkStyle : rule.lightStyle);
+                    (this.#homeAssistant.darkMode ? 
+                            rule.darkStyle : rule.lightStyle);
             }
         })();
 
@@ -303,6 +290,9 @@ class GlobalMod {
             const observer = new MutationObserver((mutations) => {
                 if (selector === "") {
                     if (root.shadowRoot) {
+                        observer.disconnect();
+                        clearTimeout(observeTimeout);
+
                         return resolve(root.shadowRoot);
                     }
                 } else {
