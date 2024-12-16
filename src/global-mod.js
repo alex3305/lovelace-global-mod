@@ -31,7 +31,7 @@ class GlobalMod {
             ]);
         });
 
-        console.info(`%c Global Mod %c ${GlobalMod.Version} `, 
+        console.info(`%c Global Mod %c v${GlobalMod.Version} `, 
             'color:white;background:purple;', 
             'color:white;background:darkgreen;');
     }
@@ -236,13 +236,14 @@ class GlobalMod {
 
         style.classList?.add(GlobalMod.Name, rule.name);
         style.style.display = "none";
-        // style.setAttribute('style', 'display:none;');
 
         (async () => {
+            const css = rule.style || "";
+
             if (!rule.darkStyle && !rule.lightStyle) {
-                style.textContent = rule.style;
+                style.textContent = css;
             } else {
-                style.textContent = rule.style + " " +
+                style.textContent = css + " " +
                     (this.#homeAssistant.darkMode ? 
                             rule.darkStyle : rule.lightStyle);
             }

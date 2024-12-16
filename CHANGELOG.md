@@ -8,6 +8,7 @@
 - Pre-check mod variables when loading instead of at mod time
 - Improved performance when adding style elements
 - Add `display: none` on style elements
+- Updated README
 
 ## 0.2.1
 - Fix HACS installation
