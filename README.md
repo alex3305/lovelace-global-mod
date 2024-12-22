@@ -164,7 +164,7 @@ A CSS style that should be applied to the selected element, but only in light mo
 
 A boolean whether or not the mod should be disabled when entering edit mode.
 
-## Troubleshooting
+## Troubleshooting (FAQ)
 
 ### Is Global Mod loaded?
 
@@ -187,6 +187,44 @@ default:
 ```
 
 This will replace the `card-mod-theme` key.
+
+### Overriding default theme variables doesn't work
+
+This is due to how the default theme in Home Assistant works. However it is possible to override theme variables with Global Mod. Going back to the Mondriaan-esque example from above, but applying it to the default theme:
+
+```yaml
+---
+# This does not work!
+default:
+  modes:
+    dark: {}
+    light:
+      primary-text-color: blue
+      divider-color: black
+  
+  primary-color: red
+```
+
+This does not work. But it is possible to override it directly in CSS with Global Mod:
+
+```yaml
+---
+default:
+  modes:
+    dark: {}
+    light: {}
+
+  root-selector: ""
+  root-style: |
+    :root {
+      --primary-color: red;
+    }
+  root-style-light: |
+    :root {
+      --primary-text-color: blue;
+      --divider-color: black;
+    }
+```
 
 ## Examples
 
