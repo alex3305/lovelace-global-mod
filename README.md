@@ -216,11 +216,11 @@ default:
 
   root-selector: ""
   root-style: |
-    :root {
+    :host {
       --primary-color: red;
     }
   root-style-light: |
-    :root {
+    :host {
       --primary-text-color: blue;
       --divider-color: black;
     }
