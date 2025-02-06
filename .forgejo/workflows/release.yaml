@@ -1,0 +1,97 @@
+---
+name: Release
+
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: docker
+    steps:
+      - name: ⤵️ Checkout Configuration
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+
+      - name: 🏗 Install dependencies
+        run: npm ci
+
+      - name: 🚀 Run dist
+        run: npm run dist
+
+      - name: ✨ Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: global-mod
+          path: |
+            global-mod.js
+          retention-days: 1
+
+  release:
+    runs-on: docker
+    steps:
+      - name: ⤵️ Checkout Configuration
+        uses: actions/checkout@v4
+
+      - name: ✨ Retrieve build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: global-mod
+
+      - name: 🎯 Get version
+        shell: bash
+        run: |
+          VERSION_TAG=$(jq -r .version package.json)
+          echo "VERSION_TAG=$VERSION_TAG" >> $GITHUB_ENV
+
+      - name: 🧾 Generate release notes
+        shell: bash
+        # yamllint disable rule:line-length
+        run: |
+          PREVIOUS=$(git describe --tags --abbrev=0)
+          CURRENT=$(git rev-parse HEAD)
+          (git log "$PREVIOUS^..$CURRENT" --format="- %h - %s (%an, %ar)" | sed '/Merge/d') > CHANGELOG.md
+        # yamllint enable rule:line-length
+
+      - name: 🚀 Create release
+        uses: akkuman/gitea-release-action@v1
+        with:
+          name: "v${{ env.VERSION_TAG }}"
+          tag_name: "v${{ env.VERSION_TAG }}"
+          body_path: CHANGELOG.md
+
+      - name: 🚀 Create additional tags
+        run: |
+          MINOR_TAG="v${VERSION_TAG%.*}"
+          MAJOR_TAG="v${VERSION_TAG%.*.*}"
+
+          git tag -fa "$MINOR_TAG" -m "$MINOR_TAG"
+          git tag -fa "$MAJOR_TAG" -m "$MAJOR_TAG"
+
+          git push -f origin --tags
+        env:
+          GIT_COMMITTER_NAME: Actions Bot
+          GIT_COMMITTER_EMAIL: actions@1d.lol
+
+  increment-version:
+    runs-on: docker
+    steps:
+      - name: ⤵️ Checkout Configuration
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+
+      - name: Increment patch version
+        run: |
+          npm version patch -m "Bump to v%s"
+          git push -f origin
+        env:
+          GIT_COMMITTER_NAME: Actions Bot
+          GIT_COMMITTER_EMAIL: actions@1d.lol

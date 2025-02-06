@@ -1,0 +1,28 @@
+---
+name: Lint and Build
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: docker
+    steps:
+      - name: ⤵️ Checkout Configuration
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+
+      - name: 🏗 Install dependencies
+        run: npm ci
+
+      - name: 🎈 Run lint
+        run: npm run lint
+
+      - name: 🚀 Run dist
+        run: npm run dist
