@@ -3,6 +3,10 @@ import { name, version } from '../package.json';
 
 "use strict";
 
+const supportsMoveBefore =
+    typeof window !== 'undefined' &&
+    typeof window.Node.prototype.moveBefore === 'function';
+
 /**
  * Global Mod for Home Assistant.
  * 
@@ -181,7 +185,13 @@ class GlobalMod {
             
             if (tree && !contains) {
                 Promise.all([
-                    tree.append(style),
+                    (() => {
+                        if (supportsMoveBefore) {
+                            tree.moveBefore(style, null);
+                        } else {
+                            tree.appendChild(style)
+                        }
+                    })(),
                     this.#styles.push(style)
                 ]);
             }

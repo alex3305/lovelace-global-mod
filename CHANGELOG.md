@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.1
+- Add new and faster _moveBefore()_ to insert style elements
+
 ## 0.3.0
 - **BREAKING** Changed `disableOnEdit` to `disable-on-edit`
 - **BREAKING** Remove hyphen limitation on key names
