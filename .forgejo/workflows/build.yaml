@@ -28,7 +28,7 @@ jobs:
       - name: 🚀 Run dist
         run: npm run dist
 
-      - name: Upload artifact
+      - name: ✨ Upload artifact
         uses: https://code.forgejo.org/forgejo/upload-artifact@v4
         if: github.ref_name == 'master'
         with:
