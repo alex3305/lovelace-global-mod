@@ -29,7 +29,6 @@ jobs:
           name: global-mod
           path: |
             global-mod.js
-          retention-days: 1
 
   release:
     runs-on: docker

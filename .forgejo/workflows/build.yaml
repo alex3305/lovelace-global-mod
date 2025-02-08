@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: Lint and build
     runs-on: docker
     steps:
       - name: ⤵️ Checkout Configuration
@@ -26,3 +27,50 @@ jobs:
 
       - name: 🚀 Run dist
         run: npm run dist
+
+      - name: Upload artifact
+        uses: https://code.forgejo.org/forgejo/upload-artifact@v4
+        if: github.ref_name == 'master'
+        with:
+          path: |
+            global-mod.js
+
+  update-nightly:
+    name: Update Nightly tags
+    runs-on: docker
+    if: github.ref_name == 'master'
+    needs: build
+    steps:
+      - name: ⤵️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🚀 Update nightly tag
+        run: |
+          git tag -fa "nightly" -m "Nightly release"
+          git push -f origin --tags
+        env:
+          GIT_COMMITTER_NAME: Actions Bot
+          GIT_COMMITTER_EMAIL: actions@1d.lol
+
+  release:
+    name: Publish Nightly Release
+    runs-on: docker
+    if: github.ref_name == 'master'
+    needs:
+      - build
+      - update-nightly
+    steps:
+      - name: 💾 Download artifact
+        uses: https://code.forgejo.org/forgejo/download-artifact@v4
+
+      - name: 🚀 Create nightly release
+        uses: akkuman/gitea-release-action@v1
+        with:
+          name: Nightly
+          tag_name: nightly
+          prerelease: true
+          target_commitish: ${{ github.SHA }}
+          files: |
+            $DIRECTORY/global-mod.js
+        env:
+          DIRECTORY: ${{ github.workspace }}/global-mod/artifact
