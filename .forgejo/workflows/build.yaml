@@ -4,6 +4,9 @@ name: Lint and Build
 # yamllint disable-line rule:truthy
 on:
   push:
+    branches:
+      - master
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -30,7 +33,7 @@ jobs:
 
       - name: ✨ Upload artifact
         uses: https://code.forgejo.org/forgejo/upload-artifact@v4
-        if: github.ref_name == 'master'
+        if: github.event_name != 'pull_request'
         with:
           path: |
             global-mod.js
@@ -38,7 +41,7 @@ jobs:
   update-nightly:
     name: Update Nightly tags
     runs-on: docker
-    if: github.ref_name == 'master'
+    if: github.event_name != 'pull_request'
     needs: build
     steps:
       - name: ⤵️ Checkout repository
@@ -55,7 +58,7 @@ jobs:
   release:
     name: Publish Nightly Release
     runs-on: docker
-    if: github.ref_name == 'master'
+    if: github.event_name != 'pull_request'
     needs:
       - build
       - update-nightly
