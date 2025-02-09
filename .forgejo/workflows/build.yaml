@@ -74,4 +74,4 @@ jobs:
           prerelease: true
           target_commitish: ${{ github.SHA }}
           files: |
-            global-mod/artifact/global-mod.js
+            artifact/global-mod.js
