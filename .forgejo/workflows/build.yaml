@@ -74,6 +74,4 @@ jobs:
           prerelease: true
           target_commitish: ${{ github.SHA }}
           files: |
-            $DIRECTORY/global-mod.js
-        env:
-          DIRECTORY: ${{ github.workspace }}/global-mod/artifact
+            global-mod/artifact/global-mod.js
