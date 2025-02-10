@@ -3,6 +3,9 @@ name: Release
 
 # yamllint disable-line rule:truthy
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -53,6 +56,22 @@ jobs:
           (git log "$PREVIOUS^..$CURRENT" --format="- %h - %s (%an, %ar)" | sed '/Merge/d') > CHANGELOG.md
         # yamllint enable rule:line-length
 
+      - name: 📦 Move artifact to root
+        run: mv artifact/global-mod.js global-mod.js
+
+      - name: 🗳 Pack GitHub Release
+        shell: bash
+        run: |
+          tar -cvzf global-mod-github.tar.gz \
+              images/ \
+              src/ \
+              global-mod.js \
+              hacs.json \
+              LICENSE.md \
+              package-lock.json \
+              package.json \
+              README.md
+
       - name: 🚀 Create release
         uses: akkuman/gitea-release-action@v1
         with:
@@ -60,22 +79,8 @@ jobs:
           tag_name: "v${{ env.VERSION_TAG }}"
           body_path: CHANGELOG.md
           files: |
-            $DIRECTORY/global-mod.js
-        env:
-          DIRECTORY: ${{ github.workspace }}/global-mod/artifact
-
-      - name: 🚀 Create additional tags
-        run: |
-          MINOR_TAG="v${VERSION_TAG%.*}"
-          MAJOR_TAG="v${VERSION_TAG%.*.*}"
-
-          git tag -fa "$MINOR_TAG" -m "$MINOR_TAG"
-          git tag -fa "$MAJOR_TAG" -m "$MAJOR_TAG"
-
-          git push -f origin --tags
-        env:
-          GIT_COMMITTER_NAME: Actions Bot
-          GIT_COMMITTER_EMAIL: actions@1d.lol
+            global-mod.js
+            global-mod-github.tar.gz
 
   increment-version:
     runs-on: docker
@@ -88,7 +93,7 @@ jobs:
         with:
           node-version: 21
 
-      - name: Increment patch version
+      - name: ⏫ Increment patch version
         run: |
           npm version patch -m "Bump to v%s"
           git push -f origin
