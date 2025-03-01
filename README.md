@@ -77,7 +77,7 @@ Which can be applied after saving to the correct path by calling the [Reload The
 
 The result should look like this:
 
-![Yellow Sidebar](images/yellow-sidebar.png)
+![Yellow Sidebar](assets/yellow-sidebar.png)
 
 If you want to create a custom theme, you are free to change the name from `default`. For instance:
 
@@ -116,7 +116,7 @@ Mondriaan:
 
 Which creates a [Mondriaan](https://en.wikipedia.org/wiki/Piet_Mondriaan) inspired theme called Mondiraan:
 
-![Mondriaan Home Assistant](images/mondriaan.png)
+![Mondriaan Home Assistant](assets/mondriaan.png)
 
 ### Mod keys
 
@@ -230,7 +230,7 @@ default:
 
 ### Frosted glass header
 
-![Frosted Glass](images/frosted-glass.png)
+![Frosted Glass](assets/frosted-glass.png)
 
 ```yaml
 root-selector: ""
