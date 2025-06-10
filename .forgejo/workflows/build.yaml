@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     name: Lint and build
-    runs-on: docker
+    runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Checkout Configuration
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -21,9 +21,10 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 21
+          cache: npm
 
       - name: 🏗 Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: 🎈 Run lint
         run: npm run lint
@@ -40,7 +41,7 @@ jobs:
 
   update-nightly:
     name: Update Nightly tags
-    runs-on: docker
+    runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     needs: build
     steps:
@@ -57,7 +58,7 @@ jobs:
 
   release:
     name: Publish Nightly Release
-    runs-on: docker
+    runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     needs:
       - build

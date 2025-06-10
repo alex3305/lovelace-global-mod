@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: docker
+    runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Checkout Configuration
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -19,9 +19,10 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 21
+          cache: npm
 
       - name: 🏗 Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: 🚀 Run dist
         run: npm run dist
@@ -33,7 +34,7 @@ jobs:
             global-mod.js
 
   release:
-    runs-on: docker
+    runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Checkout Configuration
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -83,7 +84,7 @@ jobs:
             global-mod-github.tar.gz
 
   increment-version:
-    runs-on: docker
+    runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Checkout Configuration
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -92,6 +93,7 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 21
+          cache: npm
 
       - name: ⏫ Increment patch version
         run: |
