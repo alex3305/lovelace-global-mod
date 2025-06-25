@@ -74,7 +74,7 @@ jobs:
               README.md
 
       - name: 🚀 Create release
-        uses: akkuman/gitea-release-action@65a502e85c567daffb186655559c847d9b0f91d0 # v1
+        uses: akkuman/gitea-release-action@f66c1c98f12e032443e806fae4882a05368df40c # v1
         with:
           name: "v${{ env.VERSION_TAG }}"
           tag_name: "v${{ env.VERSION_TAG }}"
