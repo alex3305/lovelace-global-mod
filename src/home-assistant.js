@@ -29,10 +29,16 @@ export class HomeAssistant {
 
     async update() {
         // https://github.com/thomasloven/lovelace-card-mod/blob/master/src/helpers/hass.ts
-        await Promise.race([
-            customElements.whenDefined("home-assistant"),
-            customElements.whenDefined("hc-main")
-        ]);
+        // https://github.com/thomasloven/hass-browser_mod/pull/910
+        let customElement = customElements.get("home-assistant") ??
+            customElements.get("hc-main");
+
+        if (customElement === undefined) {
+            await Promise.race([
+                customElements.whenDefined("home-assistant"),
+                customElements.whenDefined("hc-main"),
+            ]);
+        }
 
         const element = customElements.get("home-assistant")
             ? "home-assistant"
