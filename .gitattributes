@@ -1,2 +1,3 @@
-# Ignore distributed global-mod fir doff
+# Ignore distributed global-mod for diff
 /global-mod.js -diff
+/package-lock.js -diff
