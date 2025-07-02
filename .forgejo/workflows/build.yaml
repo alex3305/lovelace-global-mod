@@ -5,7 +5,13 @@ name: Lint and Build
 on:
   push:
     branches:
-      - master
+      - main
+    paths-ignore:
+      - "assets/**"
+      - "*.md"
+      - ".editorconfig"
+      - ".giattributes"
+      - ".gitignore"
   pull_request:
   workflow_dispatch:
 
