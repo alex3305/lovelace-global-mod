@@ -22,7 +22,7 @@
   "homepage": "https://github.com/alex3305/ha-global-mod#readme",
   "devDependencies": {
     "@eslint/js": "9.39.2",
-    "esbuild": "0.27.1",
+    "esbuild": "0.27.2",
     "eslint": "9.39.2",
     "globals": "16.5.0"
   }
