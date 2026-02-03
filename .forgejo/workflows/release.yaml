@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Checkout Configuration
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: 🏗 Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
@@ -39,7 +39,7 @@ jobs:
     needs: [build]
     steps:
       - name: ⤵️ Checkout Configuration
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: ✨ Retrieve build artifacts
         uses: https://code.forgejo.org/forgejo/download-artifact@769f970437aa3291b13f35dc23fc87967d7fb19f # v7
@@ -76,7 +76,7 @@ jobs:
     needs: [increment-version]
     steps:
       - name: ⤵️ Checkout Configuration
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: 🏗 Setup Node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
