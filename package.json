@@ -24,6 +24,6 @@
     "@eslint/js": "9.39.3",
     "esbuild": "0.27.3",
     "eslint": "9.39.3",
-    "globals": "16.5.0"
+    "globals": "17.3.0"
   }
 }
