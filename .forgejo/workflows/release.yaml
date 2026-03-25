@@ -63,7 +63,7 @@ jobs:
         run: mv artifact/global-mod.js global-mod.js
 
       - name: 🚀 Create release
-        uses: akkuman/gitea-release-action@fe8e0322804b48e34e3bddbbf6335bd2b1046eb7 # v1
+        uses: akkuman/gitea-release-action@b8d9144f302c68610911db1aaf722708d5c02d94 # v1
         with:
           name: "v${{ env.VERSION_TAG }}"
           tag_name: "v${{ env.VERSION_TAG }}"

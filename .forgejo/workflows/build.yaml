@@ -75,7 +75,7 @@ jobs:
         uses: https://code.forgejo.org/forgejo/download-artifact@769f970437aa3291b13f35dc23fc87967d7fb19f # v7
 
       - name: 🚀 Create nightly release
-        uses: akkuman/gitea-release-action@fe8e0322804b48e34e3bddbbf6335bd2b1046eb7 # v1
+        uses: akkuman/gitea-release-action@b8d9144f302c68610911db1aaf722708d5c02d94 # v1
         with:
           name: Nightly
           tag_name: nightly
